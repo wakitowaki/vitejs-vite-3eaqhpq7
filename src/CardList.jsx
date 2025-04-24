@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { collection, getDocs, updateDoc, doc, arrayUnion } from "firebase/firestore";
+import { collection, getDocs, updateDoc, deleteDoc, doc, arrayUnion } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function CardList() {
@@ -10,7 +10,6 @@ export default function CardList() {
     const [loanQuantity, setLoanQuantity] = useState(1);
     const [editingCopiesId, setEditingCopiesId] = useState(null);
     const [newCopies, setNewCopies] = useState(1);
-
 
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
@@ -45,6 +44,14 @@ export default function CardList() {
         setEditingId(null);
         setLoanedTo("");
         setLoanQuantity(1);
+        fetchCards();
+    };
+
+    const handleDeleteCard = async (card) => {
+        const confirmed = window.confirm(`Vuoi davvero eliminare "${card.name}"?`);
+        if (!confirmed) return;
+
+        await deleteDoc(doc(db, "cards", card.id));
         fetchCards();
     };
 
@@ -83,7 +90,8 @@ export default function CardList() {
                             <li key={card.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
                                 <div className="text-lg font-bold text-gray-800">{card.name}</div>
                                 <div className="text-sm text-gray-600">👤 {card.owner}</div>
-                                <div className="text-sm text-gray-600">📦 Totale copie: {editingCopiesId === card.id ? (
+
+                                {editingCopiesId === card.id ? (
                                     <div className="flex items-center gap-2 mb-2">
                                         <input
                                             type="number"
@@ -94,13 +102,11 @@ export default function CardList() {
                                         />
                                         <button
                                             onClick={async () => {
-                                                const totalLoaned = card.loans.reduce((sum, loan) => sum + loan.quantity, 0);
+                                                const totalLoaned = getTotalLoaned(card.loans);
                                                 const parsedCopies = parseInt(newCopies);
 
                                                 if (parsedCopies < totalLoaned) {
-                                                    alert(
-                                                        `Non puoi impostare un numero di copie inferiore a quelle già prestate (${totalLoaned}).`
-                                                    );
+                                                    alert(`Non puoi impostare un numero di copie inferiore a quelle già prestate (${totalLoaned}).`);
                                                     return;
                                                 }
 
@@ -113,7 +119,6 @@ export default function CardList() {
                                         >
                                             💾
                                         </button>
-
                                         <button
                                             onClick={() => setEditingCopiesId(null)}
                                             className="text-gray-500 hover:text-gray-700"
@@ -136,12 +141,11 @@ export default function CardList() {
                                         </button>
                                     </div>
                                 )}
-                                </div>
+
                                 <div className="text-sm text-gray-600 mb-2">
                                     🧮 In prestito: {totalLoaned} | Disponibili: {remaining}
                                 </div>
 
-                                {/* Visualizzazione prestiti */}
                                 {card.loans.length > 0 && (
                                     <ul className="text-sm text-yellow-800 bg-yellow-100 p-2 rounded mb-2 space-y-1">
                                         {card.loans.map((loan, index) => (
@@ -217,16 +221,38 @@ export default function CardList() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <button
-                                        onClick={() => {
-                                            setEditingId(card.id);
-                                            setLoanedTo("");
-                                            setLoanQuantity(1);
-                                        }}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                    >
-                                        Aggiungi prestito
-                                    </button>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setEditingId(card.id);
+                                                setLoanedTo("");
+                                                setLoanQuantity(1);
+                                            }}
+                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                        >
+                                            Aggiungi prestito
+                                        </button>
+
+                                        {card.loans.length > 0 && (
+                                            <button
+                                                onClick={async () => {
+                                                    const cardRef = doc(db, "cards", card.id);
+                                                    await updateDoc(cardRef, { loans: [] });
+                                                    fetchCards();
+                                                }}
+                                                className="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600"
+                                            >
+                                                Rimuovi tutti i prestiti
+                                            </button>
+                                        )}
+
+                                        <button
+                                            onClick={() => handleDeleteCard(card)}
+                                            className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                                        >
+                                            Elimina
+                                        </button>
+                                    </div>
                                 )}
                             </li>
                         );
