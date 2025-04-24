@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function CardList() {
@@ -8,16 +8,16 @@ export default function CardList() {
     const [editingId, setEditingId] = useState(null);
     const [loanedToInput, setLoanedToInput] = useState("");
 
-    useEffect(() => {
-        const fetchCards = async () => {
-            const querySnapshot = await getDocs(collection(db, "cards"));
-            const cardData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setCards(cardData);
-        };
+    const fetchCards = async () => {
+        const querySnapshot = await getDocs(collection(db, "cards"));
+        const cardData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        setCards(cardData);
+    };
 
+    useEffect(() => {
         fetchCards();
     }, []);
 
@@ -36,21 +36,31 @@ export default function CardList() {
 
         setEditingId(null);
         setLoanedToInput("");
+        fetchCards();
+    };
 
-        // Refresh cards
-        const querySnapshot = await getDocs(collection(db, "cards"));
-        const updatedCards = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        setCards(updatedCards);
+    const handleRemoveLoan = async (card) => {
+        const cardRef = doc(db, "cards", card.id);
+        await updateDoc(cardRef, {
+            isLoaned: false,
+            loanedTo: ""
+        });
+        fetchCards();
+    };
+
+    const handleDeleteCard = async (card) => {
+        const confirmed = window.confirm(`Vuoi davvero eliminare "${card.name}"?`);
+        if (!confirmed) return;
+
+        await deleteDoc(doc(db, "cards", card.id));
+        fetchCards();
     };
 
     return (
         <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">📋 Tutte le carte</h2>
 
-            {/* 🔘 Filtro per proprietario */}
+            {/* Filtro proprietario */}
             <div className="mb-6 flex flex-wrap gap-2">
                 {["Tutti", "Matteo", "Giacomo", "Marcello"].map(owner => (
                     <button
@@ -67,7 +77,6 @@ export default function CardList() {
                 ))}
             </div>
 
-            {/* 🗃️ Lista carte filtrata */}
             {filteredCards.length === 0 ? (
                 <p className="text-gray-500">Nessuna carta trovata.</p>
             ) : (
@@ -90,8 +99,6 @@ export default function CardList() {
                                         placeholder="A chi è prestata?"
                                         className="w-full border p-2 rounded"
                                     />
-
-                                    {/* Bottoni utenti */}
                                     <div className="flex gap-2">
                                         {["Matteo", "Giacomo", "Marcello"].map(user => (
                                             <button
@@ -107,8 +114,6 @@ export default function CardList() {
                                             </button>
                                         ))}
                                     </div>
-
-                                    {/* Azioni */}
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => handleUpdateLoan(card)}
@@ -128,15 +133,31 @@ export default function CardList() {
                                     </div>
                                 </div>
                             ) : (
-                                <button
-                                    onClick={() => {
-                                        setEditingId(card.id);
-                                        setLoanedToInput(card.loanedTo || "");
-                                    }}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                >
-                                    {card.isLoaned ? "Modifica prestito" : "Segna come prestata"}
-                                </button>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setEditingId(card.id);
+                                            setLoanedToInput(card.loanedTo || "");
+                                        }}
+                                        className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700"
+                                    >
+                                        {card.isLoaned ? "Modifica prestito" : "Segna come prestata"}
+                                    </button>
+                                    {card.isLoaned && (
+                                        <button
+                                            onClick={() => handleRemoveLoan(card)}
+                                            className="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600"
+                                        >
+                                            Rimuovi prestito
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => handleDeleteCard(card)}
+                                        className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                                    >
+                                        Elimina
+                                    </button>
+                                </div>
                             )}
                         </li>
                     ))}
