@@ -4,10 +4,10 @@ import CardList from './CardList';
 
 function App() {
     return (
-        <div className="min-h-screen bg-gray-100 text-gray-800 p-6 font-sans">
-            <div className="max-w-3xl mx-auto">
-                <h1 className="text-3xl font-bold text-center mb-6 text-blue-700">📚 Collezione Carte</h1>
-                <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800 font-sans px-4 py-8">
+            <div className="max-w-2xl mx-auto">
+                <h1 className="text-4xl font-extrabold text-center text-blue-800 mb-10">📚 Collezione Carte</h1>
+                <div className="bg-white rounded-xl shadow-md p-6 mb-10">
                     <AddCard />
                 </div>
                 <CardList />
@@ -17,4 +17,3 @@ function App() {
 }
 
 export default App;
-

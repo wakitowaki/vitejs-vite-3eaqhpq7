@@ -24,26 +24,26 @@ export default function AddCard() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-700">➕ Aggiungi Carta</h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
+            <h2 className="text-2xl font-semibold text-gray-700">➕ Aggiungi Carta</h2>
             <input
                 type="text"
                 placeholder="Nome carta"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 border rounded"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
             />
             <input
                 type="number"
                 placeholder="Numero copie"
                 value={copies}
                 onChange={(e) => setCopies(e.target.value)}
-                className="w-full p-2 border rounded"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
             />
             <select
                 value={owner}
                 onChange={(e) => setOwner(e.target.value)}
-                className="w-full p-2 border rounded"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
             >
                 <option>Matteo</option>
                 <option>Giacomo</option>
@@ -51,7 +51,7 @@ export default function AddCard() {
             </select>
             <button
                 type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition"
             >
                 Aggiungi
             </button>
