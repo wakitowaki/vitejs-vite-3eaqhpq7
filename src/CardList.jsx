@@ -8,6 +8,9 @@ export default function CardList() {
     const [editingId, setEditingId] = useState(null);
     const [loanedTo, setLoanedTo] = useState("");
     const [loanQuantity, setLoanQuantity] = useState(1);
+    const [editingCopiesId, setEditingCopiesId] = useState(null);
+    const [newCopies, setNewCopies] = useState(1);
+
 
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
@@ -80,7 +83,49 @@ export default function CardList() {
                             <li key={card.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
                                 <div className="text-lg font-bold text-gray-800">{card.name}</div>
                                 <div className="text-sm text-gray-600">👤 {card.owner}</div>
-                                <div className="text-sm text-gray-600">📦 Totale copie: {card.copies}</div>
+                                <div className="text-sm text-gray-600">📦 Totale copie: {editingCopiesId === card.id ? (
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={newCopies}
+                                            onChange={(e) => setNewCopies(e.target.value)}
+                                            className="border p-1 rounded w-20"
+                                        />
+                                        <button
+                                            onClick={async () => {
+                                                const cardRef = doc(db, "cards", card.id);
+                                                await updateDoc(cardRef, { copies: parseInt(newCopies) });
+                                                setEditingCopiesId(null);
+                                                fetchCards();
+                                            }}
+                                            className="text-green-600 font-semibold hover:text-green-800"
+                                        >
+                                            💾
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingCopiesId(null)}
+                                            className="text-gray-500 hover:text-gray-700"
+                                        >
+                                            ❌
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                                        📦 Totale copie: {card.copies}
+                                        <button
+                                            onClick={() => {
+                                                setEditingCopiesId(card.id);
+                                                setNewCopies(card.copies);
+                                            }}
+                                            className="text-blue-600 text-xs font-semibold hover:text-blue-800"
+                                            title="Modifica numero copie"
+                                        >
+                                            ✏️ Modifica
+                                        </button>
+                                    </div>
+                                )}
+                                </div>
                                 <div className="text-sm text-gray-600 mb-2">
                                     🧮 In prestito: {totalLoaned} | Disponibili: {remaining}
                                 </div>
