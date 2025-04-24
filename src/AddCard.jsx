@@ -1,5 +1,4 @@
-﻿// AddCard.jsx
-import { useState } from "react";
+﻿import { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -25,26 +24,26 @@ export default function AddCard() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="p-4 bg-gray-100 rounded shadow">
-            <h2 className="font-bold mb-2">Aggiungi Carta</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-700">➕ Aggiungi Carta</h2>
             <input
                 type="text"
                 placeholder="Nome carta"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="block mb-2 p-2 border w-full"
+                className="w-full p-2 border rounded"
             />
             <input
                 type="number"
                 placeholder="Numero copie"
                 value={copies}
                 onChange={(e) => setCopies(e.target.value)}
-                className="block mb-2 p-2 border w-full"
+                className="w-full p-2 border rounded"
             />
             <select
                 value={owner}
                 onChange={(e) => setOwner(e.target.value)}
-                className="block mb-2 p-2 border w-full"
+                className="w-full p-2 border rounded"
             >
                 <option>Matteo</option>
                 <option>Giacomo</option>
@@ -52,7 +51,7 @@ export default function AddCard() {
             </select>
             <button
                 type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
                 Aggiungi
             </button>

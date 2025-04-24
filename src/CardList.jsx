@@ -19,17 +19,19 @@ export default function CardList() {
     }, []);
 
     return (
-        <div className="mt-8 bg-white p-4 rounded shadow">
-            <h2 className="text-xl font-semibold mb-4">Tutte le carte</h2>
+        <div className="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-gray-700">📋 Tutte le carte</h2>
             {cards.length === 0 ? (
-                <p>Nessuna carta trovata.</p>
+                <p className="text-gray-500">Nessuna carta trovata.</p>
             ) : (
-                <ul className="space-y-2">
+                <ul className="space-y-4">
                     {cards.map(card => (
-                        <li key={card.id} className="border-b pb-2">
-                            <strong>{card.name}</strong> ({card.copies} copie) <br />
-                            👤 Proprietario: {card.owner} <br />
-                            🔁 In prestito: {card.isLoaned ? `Sì, a ${card.loanedTo}` : "No"}
+                        <li key={card.id} className="border p-4 rounded bg-gray-50">
+                            <div className="text-lg font-medium">{card.name} <span className="text-sm text-gray-500">({card.copies} copie)</span></div>
+                            <div className="text-sm text-gray-600">👤 {card.owner}</div>
+                            <div className="text-sm text-gray-600">
+                                🔁 Prestito: {card.isLoaned ? `Sì, a ${card.loanedTo}` : "No"}
+                            </div>
                         </li>
                     ))}
                 </ul>
