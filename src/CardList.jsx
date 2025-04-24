@@ -94,8 +94,18 @@ export default function CardList() {
                                         />
                                         <button
                                             onClick={async () => {
+                                                const totalLoaned = card.loans.reduce((sum, loan) => sum + loan.quantity, 0);
+                                                const parsedCopies = parseInt(newCopies);
+
+                                                if (parsedCopies < totalLoaned) {
+                                                    alert(
+                                                        `Non puoi impostare un numero di copie inferiore a quelle già prestate (${totalLoaned}).`
+                                                    );
+                                                    return;
+                                                }
+
                                                 const cardRef = doc(db, "cards", card.id);
-                                                await updateDoc(cardRef, { copies: parseInt(newCopies) });
+                                                await updateDoc(cardRef, { copies: parsedCopies });
                                                 setEditingCopiesId(null);
                                                 fetchCards();
                                             }}
