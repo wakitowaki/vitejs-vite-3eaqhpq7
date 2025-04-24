@@ -222,16 +222,18 @@ export default function CardList() {
                                     </div>
                                 ) : (
                                     <div className="flex flex-wrap gap-2">
-                                        <button
-                                            onClick={() => {
-                                                setEditingId(card.id);
-                                                setLoanedTo("");
-                                                setLoanQuantity(1);
-                                            }}
-                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                        >
-                                            Aggiungi prestito
-                                        </button>
+                                        {remaining > 0 && (
+                                            <button
+                                                onClick={() => {
+                                                    setEditingId(card.id);
+                                                    setLoanedTo("");
+                                                    setLoanQuantity(1);
+                                                }}
+                                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                            >
+                                                Aggiungi prestito
+                                            </button>
+                                        )}
 
                                         {card.loans.length > 0 && (
                                             <button
