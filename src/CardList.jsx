@@ -89,7 +89,21 @@ export default function CardList() {
                                 {card.loans.length > 0 && (
                                     <ul className="text-sm text-yellow-800 bg-yellow-100 p-2 rounded mb-2 space-y-1">
                                         {card.loans.map((loan, index) => (
-                                            <li key={index}>📦 {loan.quantity} a {loan.to}</li>
+                                            <li key={index} className="flex items-center justify-between">
+                                                <span>📦 {loan.quantity} a {loan.to}</span>
+                                                <button
+                                                    onClick={async () => {
+                                                        const cardRef = doc(db, "cards", card.id);
+                                                        const updatedLoans = card.loans.filter((_, i) => i !== index);
+                                                        await updateDoc(cardRef, { loans: updatedLoans });
+                                                        fetchCards();
+                                                    }}
+                                                    className="text-red-600 hover:text-red-800 ml-3"
+                                                    title="Rimuovi prestito"
+                                                >
+                                                    ✖
+                                                </button>
+                                            </li>
                                         ))}
                                     </ul>
                                 )}
