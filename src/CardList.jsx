@@ -24,7 +24,7 @@ export default function CardList() {
 
     useEffect(() => {
         fetchCards();
-    }, [refreshTrigger])
+    }, []);
 
     const filteredCards = filter === "Tutti"
         ? cards
@@ -113,6 +113,7 @@ export default function CardList() {
                                         >
                                             💾
                                         </button>
+
                                         <button
                                             onClick={() => setEditingCopiesId(null)}
                                             className="text-gray-500 hover:text-gray-700"

@@ -2,7 +2,7 @@
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
-export default function AddCard({ onCardAdded }) {
+export default function AddCard() {
     const [name, setName] = useState("");
     const [copies, setCopies] = useState(1);
     const [owner, setOwner] = useState("Matteo");
@@ -15,13 +15,12 @@ export default function AddCard({ onCardAdded }) {
             name,
             copies: parseInt(copies),
             owner,
-            loans: []
+            isLoaned: false,
+            loanedTo: ""
         });
 
         setName("");
         setCopies(1);
-
-        if (onCardAdded) onCardAdded(); // 👈 notifica il genitore
     };
 
     return (
