@@ -24,7 +24,7 @@ export default function CardList() {
 
     useEffect(() => {
         fetchCards();
-    }, []);
+    }, [refreshTrigger])
 
     const filteredCards = filter === "Tutti"
         ? cards
