@@ -87,7 +87,15 @@ export default function CardList() {
                             <div className="text-sm text-gray-600">👤 {card.owner}</div>
                             <div className="text-sm text-gray-600">📦 Copie: {card.copies}</div>
                             <div className="text-sm text-gray-600 mb-2">
-                                🔁 Prestito: {card.isLoaned ? `Sì, a ${card.loanedTo}` : "No"}
+                                🔁 Prestito: {card.isLoaned ? (
+                                <div className="text-sm font-semibold bg-yellow-100 text-yellow-800 px-3 py-2 rounded mb-2 inline-block">
+                                    🔒 Prestata a: {card.loanedTo}
+                                </div>
+                            ) : (
+                                <div className="text-sm text-gray-600 mb-2">
+                                    🔓 Non in prestito
+                                </div>
+                            )}
                             </div>
 
                             {editingId === card.id ? (
