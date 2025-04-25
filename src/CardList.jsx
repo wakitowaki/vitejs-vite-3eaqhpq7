@@ -192,7 +192,13 @@ export default function CardList() {
                                     <div className="text-sm text-gray-600 mb-2">
                                         ✨ Foil: {availableFoil} | 🃏 Non Foil: {availableNonFoil}
                                     </div>
-
+                                    {(card.priceEur || card.priceEurFoil) && (
+                                        <div className="text-sm text-gray-700 mt-1">
+                                            💶 Prezzo stimato:{" "}
+                                            {card.priceEur ? `Normale €${parseFloat(card.priceEur).toFixed(2)}` : "-"}
+                                            {card.priceEurFoil ? ` / Foil €${parseFloat(card.priceEurFoil).toFixed(2)}` : ""}
+                                        </div>
+                                    )}
                                     {card.loans.length > 0 && (
                                         <ul className="text-sm text-yellow-800 bg-yellow-100 p-2 rounded mb-2 space-y-1">
                                             {card.loans.map((loan, index) => (
