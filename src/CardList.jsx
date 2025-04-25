@@ -8,6 +8,8 @@ export default function CardList() {
     const [editingId, setEditingId] = useState(null);
     const [loanedTo, setLoanedTo] = useState("");
     const [loanQuantity, setLoanQuantity] = useState(1);
+    const [loanFoil, setLoanFoil] = useState(false);
+    const [loanNote, setLoanNote] = useState("");
     const [editingCopiesId, setEditingCopiesId] = useState(null);
     const [newCopies, setNewCopies] = useState(1);
 
@@ -33,15 +35,20 @@ export default function CardList() {
         await updateDoc(cardRef, {
             loans: arrayUnion({
                 to: loanedTo.trim(),
-                quantity: parseInt(loanQuantity)
+                quantity: parseInt(loanQuantity),
+                foil: loanFoil,
+                note: loanNote.trim()
             })
         });
 
         setEditingId(null);
         setLoanedTo("");
         setLoanQuantity(1);
+        setLoanFoil(false);
+        setLoanNote("");
         fetchCards();
     };
+
 
     const handleDeleteCard = async (card) => {
         const confirmed = window.confirm(`Vuoi davvero eliminare "${card.name}"?`);
@@ -108,8 +115,12 @@ export default function CardList() {
                                 {card.loans.length > 0 && (
                                     <ul className="text-sm text-yellow-800 bg-yellow-100 p-2 rounded mb-2 space-y-1">
                                         {card.loans.map((loan, index) => (
-                                            <li key={index} className="flex items-center justify-between">
-                                                <span>📦 {loan.quantity} a {loan.to}</span>
+                                            <li key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                                <span>📦 {loan.quantity} {loan.foil ? "Foil" : "Non Foil"} a {loan.to}
+                                                    {loan.note && (
+                                                        <span className="text-gray-500 italic ml-2">📝 {loan.note}</span>
+                                                    )}
+                                                </span>
                                                 <button
                                                     onClick={async () => {
                                                         const cardRef = doc(db, "cards", card.id);
@@ -123,6 +134,7 @@ export default function CardList() {
                                                     ✖
                                                 </button>
                                             </li>
+
                                         ))}
                                     </ul>
                                 )}
@@ -139,27 +151,40 @@ export default function CardList() {
                                         <input
                                             type="number"
                                             min="1"
-                                            max={remaining}
                                             value={loanQuantity}
                                             onChange={(e) => setLoanQuantity(e.target.value)}
                                             placeholder="Numero copie"
                                             className="w-full border p-2 rounded"
                                         />
+
+                                        {/* FOIL o NON FOIL */}
                                         <div className="flex gap-2">
-                                            {["Matteo", "Giacomo", "Marcello"].map(user => (
-                                                <button
-                                                    key={user}
-                                                    onClick={() => setLoanedTo(user)}
-                                                    className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
-                                                        loanedTo === user
-                                                            ? "bg-blue-600 text-white"
-                                                            : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                                                    }`}
-                                                >
-                                                    {user}
-                                                </button>
-                                            ))}
+                                            <button
+                                                onClick={() => setLoanFoil(false)}
+                                                type="button"
+                                                className={`px-4 py-2 rounded-full ${!loanFoil ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+                                            >
+                                                Non Foil
+                                            </button>
+                                            <button
+                                                onClick={() => setLoanFoil(true)}
+                                                type="button"
+                                                className={`px-4 py-2 rounded-full ${loanFoil ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+                                            >
+                                                Foil
+                                            </button>
                                         </div>
+
+                                        {/* NOTA */}
+                                        <textarea
+                                            value={loanNote}
+                                            onChange={(e) => setLoanNote(e.target.value)}
+                                            placeholder="Nota sul prestito (facoltativa)"
+                                            className="w-full border p-2 rounded"
+                                            rows="2"
+                                        />
+
+                                        {/* Bottoni Salva/Annulla */}
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => handleAddLoan(card)}
@@ -172,6 +197,8 @@ export default function CardList() {
                                                     setEditingId(null);
                                                     setLoanedTo("");
                                                     setLoanQuantity(1);
+                                                    setLoanFoil(false);
+                                                    setLoanNote("");
                                                 }}
                                                 className="bg-gray-400 text-white px-3 py-2 rounded hover:bg-gray-500"
                                             >
