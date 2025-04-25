@@ -19,6 +19,9 @@ export default function UserDashboard() {
     const [originalCardData, setOriginalCardData] = useState(null);
     const [priceEur, setPriceEur] = useState(null);
     const [priceEurFoil, setPriceEurFoil] = useState(null);
+    const [sortOption, setSortOption] = useState("nameAsc"); // default: Nome A-Z
+    const [searchTerm, setSearchTerm] = useState(""); // testo di ricerca
+
 
 
     useEffect(() => {
@@ -338,12 +341,35 @@ export default function UserDashboard() {
                     </ul>
                 )}
             </div>
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+                <div className="flex-1">
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="🔍 Cerca per nome..."
+                        className="w-full border p-2 rounded"
+                    />
+                </div>
+                <div className="flex-1">
+                    <select
+                        value={sortOption}
+                        onChange={(e) => setSortOption(e.target.value)}
+                        className="w-full border p-2 rounded"
+                    >
+                        <option value="nameAsc">🔠 Nome A-Z</option>
+                        <option value="nameDesc">🔠 Nome Z-A</option>
+                        <option value="priceAsc">💶 Prezzo crescente</option>
+                        <option value="priceDesc">💶 Prezzo decrescente</option>
+                    </select>
+                </div>
+            </div>
 
             <div>
                 <h3 className="text-xl font-semibold text-green-700 mb-2">✅ Carte disponibili</h3>
                 {disponibili.length === 0 ? (
-                    <p className="text-gray-500">Nessuna carta disponibile.</p>
-                ) : (
+                    <p className="text-gray-500">Nessuna carta disponibile.</p>) : 
+                    (
                     <ul className="space-y-4">
                         {disponibili.map(card => {
                             const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
