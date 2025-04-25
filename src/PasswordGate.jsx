@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function PasswordGate({ children }) {
     const [inputPassword, setInputPassword] = useState("");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    const correctPassword = "PeneGrosso22"; // 🔥 Qui metti la tua password
+    const correctPassword = "PeneGrosso22"; // 🔥 Qui c'è la tua password
+
+    useEffect(() => {
+        const storedAuth = localStorage.getItem("isAuthenticated");
+        if (storedAuth === "true") {
+            setIsAuthenticated(true);
+        }
+    }, []);
 
     const handleLogin = (e) => {
         e.preventDefault();
         if (inputPassword === correctPassword) {
             setIsAuthenticated(true);
+            localStorage.setItem("isAuthenticated", "true");
         } else {
             alert("Password errata!");
         }
