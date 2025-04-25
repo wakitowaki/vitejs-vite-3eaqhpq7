@@ -56,7 +56,7 @@ export default function PasswordGate({ children }) {
         <div
             className="relative min-h-screen text-gray-800 font-sans px-4 py-8"
             style={{
-                backgroundImage: 'url(/54.jpg)',
+                backgroundImage: 'url(/21.jpg)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundAttachment: 'fixed',
