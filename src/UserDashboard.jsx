@@ -322,13 +322,6 @@ export default function UserDashboard() {
                                         ))}
                                     </ul>
                                 </div>
-                                {(card.priceEur || card.priceEurFoil) && (
-                                    <div className="text-sm text-gray-700 mt-1">
-                                        💶 Prezzo stimato:{" "}
-                                        {card.priceEur ? `Normale €${parseFloat(card.priceEur).toFixed(2)}` : "-"}
-                                        {card.priceEurFoil ? ` / Foil €${parseFloat(card.priceEurFoil).toFixed(2)}` : ""}
-                                    </div>
-                                )}
                                 {card.imageUrl && (
                                     <div
                                         className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
