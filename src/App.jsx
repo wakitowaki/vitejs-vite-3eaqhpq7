@@ -10,7 +10,7 @@ function App() {
     return (
         <PasswordGate>
             <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800 font-sans px-4 py-8">
-                <div className="max-w-2xl mx-auto">
+                <div className="max-w-xl mx-auto">
                 <div className="flex justify-between items-center mb-6">
                         <h1 className="text-4xl font-extrabold text-blue-800">📚 Collezione Carte</h1>
                         <div className="space-x-2">
