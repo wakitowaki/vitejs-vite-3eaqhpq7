@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react";
+﻿
+import { useEffect, useState } from "react";
 import { collection, getDocs, updateDoc, deleteDoc, doc, arrayUnion } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -182,7 +183,6 @@ export default function CardList() {
 
                         return (
                             <li key={card.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm flex justify-between items-start">
-                                {/* Testo carta */}
                                 <div className="flex-1 pr-4">
                                     <div className="text-lg font-bold text-gray-800">{card.name}</div>
                                     <div className="text-sm text-gray-600">👤 {card.owner}</div>
@@ -199,7 +199,6 @@ export default function CardList() {
                                         ✨ Foil: {availableFoil} | 🃏 Non Foil: {availableNonFoil}
                                     </div>
 
-                                    {/* Prestiti */}
                                     {card.loans.length > 0 && (
                                         <ul className="text-sm text-yellow-800 bg-yellow-100 p-2 rounded mb-2 space-y-1">
                                             {card.loans.map((loan, index) => (
@@ -228,7 +227,6 @@ export default function CardList() {
                                     )}
                                 </div>
 
-                                {/* Immagine carta */}
                                 {card.imageUrl && (
                                     <div
                                         className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
@@ -248,7 +246,6 @@ export default function CardList() {
                 </ul>
             )}
 
-            {/* Overlay immagine grande */}
             {hoveredImage && (
                 <div
                     className="fixed z-50 pointer-events-none"
