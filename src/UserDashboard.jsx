@@ -221,9 +221,8 @@ export default function UserDashboard() {
                                         ))}
                                     </ul>
                                 </div>
-
                                 {card.imageUrl && (
-                                    <div className="w-20 overflow-hidden rounded shadow-md">
+                                    <div className="w-24 overflow-hidden rounded shadow-md">
                                         <img
                                             src={card.imageUrl}
                                             alt={card.name}
@@ -232,7 +231,6 @@ export default function UserDashboard() {
                                     </div>
                                 )}
                             </li>
-
                         ))}
                     </ul>
                 )}
@@ -254,20 +252,28 @@ export default function UserDashboard() {
                             const availableNonFoil = copies.filter(c => !c.foil).length - totalLoanedNonFoil;
 
                             return (
-                                <li key={card.id} className="border p-3 rounded bg-green-50">
+                                <li key={card.id} className="border p-3 rounded bg-green-50 flex justify-between items-start">
+                                    <div className="flex-1 pr-4">
+                                        <div className="font-bold">{card.name}</div>
+                                        {card.notes && (
+                                            <div className="text-sm italic text-gray-500 mt-1">
+                                                📝 {card.notes}
+                                            </div>
+                                        )}
+                                        <div className="text-sm text-gray-700 mt-1">
+                                            ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
+                                            🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
+                                        </div>
+                                    </div>
                                     {card.imageUrl && (
-                                        <img src={card.imageUrl} alt={card.name} className="w-16 rounded shadow mb-2" />
-                                    )}
-                                    <div className="font-bold">{card.name}</div>
-                                    {card.notes && (
-                                        <div className="text-sm italic text-gray-500 mt-1">
-                                            📝 {card.notes}
+                                        <div className="w-24 overflow-hidden rounded shadow-md">
+                                            <img
+                                                src={card.imageUrl}
+                                                alt={card.name}
+                                                className="transition-transform duration-300 hover:scale-110 rounded"
+                                            />
                                         </div>
                                     )}
-                                    <div className="text-sm text-gray-700 mt-1">
-                                        ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
-                                        🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
-                                    </div>
                                 </li>
                             );
                         })}
