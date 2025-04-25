@@ -53,8 +53,17 @@ export default function PasswordGate({ children }) {
     }
 
     return (
-        <div className="relative min-h-screen">
-            {/* Bottone Logout */}
+        <div
+            className="relative min-h-screen text-gray-800 font-sans px-4 py-8"
+            style={{
+                backgroundImage: 'url(https://images.unsplash.com/photo-1604079628043-943985547498?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+            }}
+        >
+
+        {/* Bottone Logout */}
             <div className="absolute top-4 right-4">
                 <button
                     onClick={handleLogout}
