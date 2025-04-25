@@ -2,44 +2,47 @@ import './App.css';
 import AddCard from './AddCard';
 import CardList from './CardList';
 import UserDashboard from './UserDashboard';
+import PasswordGate from './PasswordGate';
 import { useState } from 'react';
 
 function App() {
     const [view, setView] = useState("collection"); // "collection" o "dashboard"
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800 font-sans px-4 py-8">
-            <div className="max-w-3xl mx-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-4xl font-extrabold text-blue-800">📚 Collezione Carte</h1>
-                    <div className="space-x-2">
-                        <button
-                            onClick={() => setView("collection")}
-                            className={`px-4 py-2 rounded ${view === "collection" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
-                        >
-                            Collezione
-                        </button>
-                        <button
-                            onClick={() => setView("dashboard")}
-                            className={`px-4 py-2 rounded ${view === "dashboard" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
-                        >
-                            Dashboard
-                        </button>
-                    </div>
-                </div>
-
-                {view === "collection" ? (
-                    <>
-                        <div className="bg-white rounded-xl shadow-md p-6 mb-10">
-                            <AddCard />
+        <PasswordGate>
+            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white text-gray-800 font-sans px-4 py-8">
+                <div className="max-w-3xl mx-auto">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-4xl font-extrabold text-blue-800">📚 Collezione Carte</h1>
+                        <div className="space-x-2">
+                            <button
+                                onClick={() => setView("collection")}
+                                className={`px-4 py-2 rounded ${view === "collection" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                            >
+                                Collezione
+                            </button>
+                            <button
+                                onClick={() => setView("dashboard")}
+                                className={`px-4 py-2 rounded ${view === "dashboard" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                            >
+                                Dashboard
+                            </button>
                         </div>
-                        <CardList />
-                    </>
-                ) : (
-                    <UserDashboard />
-                )}
+                    </div>
+
+                    {view === "collection" ? (
+                        <>
+                            <div className="bg-white rounded-xl shadow-md p-6 mb-10">
+                                <AddCard />
+                            </div>
+                            <CardList />
+                        </>
+                    ) : (
+                        <UserDashboard />
+                    )}
+                </div>
             </div>
-        </div>
+        </PasswordGate>
     );
 }
 
