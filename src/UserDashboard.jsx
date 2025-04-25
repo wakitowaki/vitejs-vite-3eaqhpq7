@@ -12,9 +12,8 @@ export default function UserDashboard() {
     const [foilCopies, setFoilCopies] = useState(0);
     const [nonFoilCopies, setNonFoilCopies] = useState(0);
     const [notes, setNotes] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
-    
     const [suggestions, setSuggestions] = useState([]);
+    const [successMessage, setSuccessMessage] = useState("");
 
     useEffect(() => {
         fetchCards();
@@ -50,11 +49,13 @@ export default function UserDashboard() {
             loans: []
         });
 
+        // Reset campi
         setName("");
         setEdition("");
         setFoilCopies(0);
         setNonFoilCopies(0);
         setNotes("");
+        setSuggestions([]);
         setSuccessMessage("✅ Carta aggiunta con successo!");
 
         fetchCards();
@@ -81,6 +82,7 @@ export default function UserDashboard() {
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md">
+            {/* Selettore proprietario */}
             <div className="mb-6">
                 <label htmlFor="owner" className="block text-sm font-medium text-gray-700 mb-1">
                     Seleziona utente:
@@ -97,47 +99,60 @@ export default function UserDashboard() {
                 </select>
             </div>
 
-            {/* FORM Aggiungi nuova carta */}
+            {/* Form Aggiungi nuova carta */}
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-blue-800 mb-4">➕ Aggiungi nuova carta</h3>
                 <div className="space-y-3 relative">
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            setName(val);
+                    {/* Input nome carta + suggerimenti */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={async (e) => {
+                                const val = e.target.value;
+                                setName(val);
 
-                            if (val.length > 1) {
-                                fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(val)}`)
-                                    .then(res => res.json())
-                                    .then(data => setSuggestions(data.data))
-                                    .catch(() => setSuggestions([]));
-                            } else {
-                                setSuggestions([]);
-                            }
-                        }}
-                        placeholder="Nome carta"
-                        className="w-full border p-2 rounded"
-                    />
-
-                    {/* Lista suggerimenti */}
-                    {suggestions.length > 0 && (
-                        <ul className="absolute bg-white border w-full mt-1 z-10 max-h-48 overflow-auto rounded shadow">
-                            {suggestions.map((s, idx) => (
-                                <li
-                                    key={idx}
-                                    className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
-                                    onClick={() => {
-                                        setName(s);
+                                if (val.length > 1) {
+                                    try {
+                                        const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${val}`)}`);
+                                        const data = await res.json();
+                                        const results = data.data.map(card => ({
+                                            name: card.name,
+                                            image: card.image_uris?.small || null,
+                                        }));
+                                        setSuggestions(results.slice(0, 5));
+                                    } catch (error) {
+                                        console.error("Errore caricamento suggerimenti:", error);
                                         setSuggestions([]);
-                                    }}
-                                >
-                                    {s}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                    }
+                                } else {
+                                    setSuggestions([]);
+                                }
+                            }}
+                            placeholder="Nome carta"
+                            className="w-full border p-2 rounded"
+                        />
+
+                        {suggestions.length > 0 && (
+                            <ul className="absolute bg-white border w-full mt-1 z-10 max-h-60 overflow-auto rounded shadow">
+                                {suggestions.map((s, idx) => (
+                                    <li
+                                        key={idx}
+                                        onClick={() => {
+                                            setName(s.name);
+                                            setSuggestions([]);
+                                        }}
+                                        className="flex items-center gap-2 p-2 hover:bg-blue-100 cursor-pointer text-sm"
+                                    >
+                                        {s.image && (
+                                            <img src={s.image} alt={s.name} className="w-10 h-auto rounded" />
+                                        )}
+                                        <span>{s.name}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
 
                     <input
                         type="text"
@@ -146,6 +161,7 @@ export default function UserDashboard() {
                         placeholder="Edizione"
                         className="w-full border p-2 rounded"
                     />
+
                     <div className="flex gap-4">
                         <div className="flex-1">
                             <label className="block text-sm mb-1">✨ Copie Foil</label>
@@ -168,6 +184,7 @@ export default function UserDashboard() {
                             />
                         </div>
                     </div>
+
                     <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
@@ -175,6 +192,7 @@ export default function UserDashboard() {
                         className="w-full border p-2 rounded"
                         rows="2"
                     />
+
                     <button
                         onClick={handleAddCard}
                         className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -187,7 +205,6 @@ export default function UserDashboard() {
                     )}
                 </div>
             </div>
-
 
             {/* Carte in prestito */}
             <div className="mb-8">
@@ -233,19 +250,16 @@ export default function UserDashboard() {
                             return (
                                 <li key={card.id} className="border p-3 rounded bg-green-50">
                                     <div className="font-bold">{card.name}</div>
-
                                     {card.notes && (
                                         <div className="text-sm italic text-gray-500 mt-1">
                                             📝 {card.notes}
                                         </div>
                                     )}
-
                                     <div className="text-sm text-gray-700 mt-1">
                                         ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
                                         🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
                                     </div>
                                 </li>
-
                             );
                         })}
                     </ul>
