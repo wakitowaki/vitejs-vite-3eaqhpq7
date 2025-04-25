@@ -1,12 +1,11 @@
 import './App.css';
-import AddCard from './AddCard';
 import CardList from './CardList';
-import UserDashboard from './UserDashboard';
 import PasswordGate from './PasswordGate';
 import { useState } from 'react';
+import UserDashboard from './UserDashboard';
 
 function App() {
-    const [view, setView] = useState("collection"); // "collection" o "dashboard"
+    const [view, setView] = useState("collection");
 
     return (
         <PasswordGate>
@@ -31,12 +30,7 @@ function App() {
                     </div>
 
                     {view === "collection" ? (
-                        <>
-                            <div className="bg-white rounded-xl shadow-md p-6 mb-10">
-                                <AddCard />
-                            </div>
-                            <CardList />
-                        </>
+                        <CardList />
                     ) : (
                         <UserDashboard />
                     )}
