@@ -25,10 +25,6 @@ export default function CardList() {
         fetchCards();
     }, []);
 
-    const filteredCards = filter === "Tutti"
-        ? cards
-        : cards.filter(card => card.owner === filter);
-
     const handleAddLoan = async (card) => {
         if (!loanedTo.trim() || loanQuantity <= 0) return;
 
@@ -58,6 +54,10 @@ export default function CardList() {
     const getTotalLoaned = (loans) =>
         loans.reduce((sum, loan) => sum + (loan.quantity || 0), 0);
 
+    const filteredCards = filter === "Tutti"
+        ? cards
+        : cards.filter(card => card.owner === filter);
+
     return (
         <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">📋 Tutte le carte</h2>
@@ -84,63 +84,22 @@ export default function CardList() {
                 <ul className="space-y-4">
                     {filteredCards.map(card => {
                         const totalLoaned = getTotalLoaned(card.loans);
-                        const remaining = card.copies - totalLoaned;
+                        const totalCopies = Array.isArray(card.copies) ? card.copies.length : card.copies;
+                        const remaining = totalCopies - totalLoaned;
 
                         return (
                             <li key={card.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
                                 <div className="text-lg font-bold text-gray-800">{card.name}</div>
                                 <div className="text-sm text-gray-600">👤 {card.owner}</div>
-
-                                {editingCopiesId === card.id ? (
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            value={newCopies}
-                                            onChange={(e) => setNewCopies(e.target.value)}
-                                            className="border p-1 rounded w-20"
-                                        />
-                                        <button
-                                            onClick={async () => {
-                                                const totalLoaned = getTotalLoaned(card.loans);
-                                                const parsedCopies = parseInt(newCopies);
-
-                                                if (parsedCopies < totalLoaned) {
-                                                    alert(`Non puoi impostare un numero di copie inferiore a quelle già prestate (${totalLoaned}).`);
-                                                    return;
-                                                }
-
-                                                const cardRef = doc(db, "cards", card.id);
-                                                await updateDoc(cardRef, { copies: parsedCopies });
-                                                setEditingCopiesId(null);
-                                                fetchCards();
-                                            }}
-                                            className="text-green-600 font-semibold hover:text-green-800"
-                                        >
-                                            💾
-                                        </button>
-                                        <button
-                                            onClick={() => setEditingCopiesId(null)}
-                                            className="text-gray-500 hover:text-gray-700"
-                                        >
-                                            ❌
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
-                                        📦 Totale copie: {card.copies}
-                                        <button
-                                            onClick={() => {
-                                                setEditingCopiesId(card.id);
-                                                setNewCopies(card.copies);
-                                            }}
-                                            className="text-blue-600 text-xs font-semibold hover:text-blue-800"
-                                            title="Modifica numero copie"
-                                        >
-                                            ✏️ Modifica
-                                        </button>
-                                    </div>
+                                {card.edition && (
+                                    <div className="text-sm text-gray-600">🏷️ Edizione: {card.edition}</div>
                                 )}
+                                {card.notes && (
+                                    <div className="text-sm text-gray-500 italic">📝 {card.notes}</div>
+                                )}
+                                <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                                    📦 Totale copie: {totalCopies}
+                                </div>
 
                                 <div className="text-sm text-gray-600 mb-2">
                                     🧮 In prestito: {totalLoaned} | Disponibili: {remaining}
@@ -234,7 +193,6 @@ export default function CardList() {
                                                 Aggiungi prestito
                                             </button>
                                         )}
-
                                         {card.loans.length > 0 && (
                                             <button
                                                 onClick={async () => {
@@ -247,7 +205,6 @@ export default function CardList() {
                                                 Rimuovi tutti i prestiti
                                             </button>
                                         )}
-
                                         <button
                                             onClick={() => handleDeleteCard(card)}
                                             className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
