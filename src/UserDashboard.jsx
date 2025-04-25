@@ -41,7 +41,8 @@ export default function UserDashboard() {
             edition: edition.trim(),
             notes: notes.trim(),
             copies: copies,
-            loans: []
+            loans: [],
+            imageUrl: previewImage || null
         });
 
         setName("");
@@ -71,7 +72,6 @@ export default function UserDashboard() {
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md">
-            {/* Selezione utente */}
             <div className="mb-6">
                 <label htmlFor="owner" className="block text-sm font-medium text-gray-700 mb-1">Seleziona utente:</label>
                 <select
@@ -130,7 +130,7 @@ export default function UserDashboard() {
                                             onClick={() => {
                                                 setName(s.name);
                                                 setSuggestions([]);
-                                                setPreviewImage(null);
+                                                setPreviewImage(s.image);
                                             }}
                                             className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
                                         >
@@ -142,14 +142,9 @@ export default function UserDashboard() {
                         </div>
                         {previewImage && (
                             <div className="hidden sm:block w-52 absolute right-[-220px] top-0 z-20">
-                                <img
-                                    src={previewImage}
-                                    alt="Preview"
-                                    className="rounded-xl shadow-lg border border-gray-200"
-                                />
+                                <img src={previewImage} alt="Preview" className="rounded-xl shadow-lg border border-gray-200" />
                             </div>
                         )}
-
                     </div>
 
                     <input
@@ -213,6 +208,9 @@ export default function UserDashboard() {
                     <ul className="space-y-4">
                         {inPrestito.map(card => (
                             <li key={card.id} className="border p-3 rounded bg-yellow-50">
+                                {card.imageUrl && (
+                                    <img src={card.imageUrl} alt={card.name} className="w-16 rounded shadow mb-2" />
+                                )}
                                 <div className="font-bold">{card.name}</div>
                                 <ul className="text-sm text-gray-700 mt-2 space-y-1">
                                     {card.loans.map((loan, i) => (
@@ -247,6 +245,9 @@ export default function UserDashboard() {
 
                             return (
                                 <li key={card.id} className="border p-3 rounded bg-green-50">
+                                    {card.imageUrl && (
+                                        <img src={card.imageUrl} alt={card.name} className="w-16 rounded shadow mb-2" />
+                                    )}
                                     <div className="font-bold">{card.name}</div>
                                     {card.notes && (
                                         <div className="text-sm italic text-gray-500 mt-1">
