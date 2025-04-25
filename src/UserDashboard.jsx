@@ -1,11 +1,11 @@
-﻿import { useEffect, useState } from "react";
+﻿
+import { useEffect, useState } from "react";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function UserDashboard() {
     const [cards, setCards] = useState([]);
     const [selectedOwner, setSelectedOwner] = useState("Matteo");
-
     const [name, setName] = useState("");
     const [edition, setEdition] = useState("");
     const [foilCopies, setFoilCopies] = useState(0);
@@ -14,6 +14,8 @@ export default function UserDashboard() {
     const [suggestions, setSuggestions] = useState([]);
     const [previewImage, setPreviewImage] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
+    const [hoveredImage, setHoveredImage] = useState(null);
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
         fetchCards();
@@ -70,8 +72,12 @@ export default function UserDashboard() {
         return (Array.isArray(card.copies) ? card.copies.length : card.copies) - totalLoaned > 0;
     });
 
+    const handleMouseMove = (e) => {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
     return (
-        <div className="p-6 bg-white rounded-xl shadow-md">
+        <div className="p-6 bg-white rounded-xl shadow-md" onMouseMove={handleMouseMove}>
             <div className="mb-6">
                 <label htmlFor="owner" className="block text-sm font-medium text-gray-700 mb-1">Seleziona utente:</label>
                 <select
@@ -86,7 +92,6 @@ export default function UserDashboard() {
                 </select>
             </div>
 
-            {/* Aggiunta nuova carta */}
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-blue-800 mb-4">➕ Aggiungi nuova carta</h3>
                 <div className="space-y-3 relative">
@@ -98,7 +103,6 @@ export default function UserDashboard() {
                                 onChange={async (e) => {
                                     const val = e.target.value;
                                     setName(val);
-
                                     if (val.length > 1) {
                                         try {
                                             const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${val}`)}`);
@@ -199,7 +203,6 @@ export default function UserDashboard() {
                 </div>
             </div>
 
-            {/* Carte in prestito */}
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-yellow-700 mb-2">🔒 Carte in prestito</h3>
                 {inPrestito.length === 0 ? (
@@ -222,12 +225,12 @@ export default function UserDashboard() {
                                     </ul>
                                 </div>
                                 {card.imageUrl && (
-                                    <div className="w-24 overflow-hidden rounded shadow-md">
-                                        <img
-                                            src={card.imageUrl}
-                                            alt={card.name}
-                                            className="transition-transform duration-300 hover:scale-110 rounded"
-                                        />
+                                    <div
+                                        className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
+                                        onMouseEnter={() => setHoveredImage(card.imageUrl)}
+                                        onMouseLeave={() => setHoveredImage(null)}
+                                    >
+                                        <img src={card.imageUrl} alt={card.name} className="rounded" />
                                     </div>
                                 )}
                             </li>
@@ -236,7 +239,6 @@ export default function UserDashboard() {
                 )}
             </div>
 
-            {/* Carte disponibili */}
             <div>
                 <h3 className="text-xl font-semibold text-green-700 mb-2">✅ Carte disponibili</h3>
                 {disponibili.length === 0 ? (
@@ -247,10 +249,8 @@ export default function UserDashboard() {
                             const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
                             const totalLoanedFoil = getTotalLoanedFoil(card.loans || [], true);
                             const totalLoanedNonFoil = getTotalLoanedFoil(card.loans || [], false);
-
                             const availableFoil = copies.filter(c => c.foil).length - totalLoanedFoil;
                             const availableNonFoil = copies.filter(c => !c.foil).length - totalLoanedNonFoil;
-
                             return (
                                 <li key={card.id} className="border p-3 rounded bg-green-50 flex justify-between items-start">
                                     <div className="flex-1 pr-4">
@@ -266,12 +266,12 @@ export default function UserDashboard() {
                                         </div>
                                     </div>
                                     {card.imageUrl && (
-                                        <div className="w-24 overflow-hidden rounded shadow-md">
-                                            <img
-                                                src={card.imageUrl}
-                                                alt={card.name}
-                                                className="transition-transform duration-300 hover:scale-110 rounded"
-                                            />
+                                        <div
+                                            className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
+                                            onMouseEnter={() => setHoveredImage(card.imageUrl)}
+                                            onMouseLeave={() => setHoveredImage(null)}
+                                        >
+                                            <img src={card.imageUrl} alt={card.name} className="rounded" />
                                         </div>
                                     )}
                                 </li>
@@ -280,6 +280,22 @@ export default function UserDashboard() {
                     </ul>
                 )}
             </div>
+
+            {hoveredImage && (
+                <div
+                    className="fixed z-50 pointer-events-none"
+                    style={{
+                        top: mousePosition.y + 20,
+                        left: mousePosition.x + 20,
+                    }}
+                >
+                    <img
+                        src={hoveredImage}
+                        alt="Anteprima"
+                        className="w-64 rounded-lg shadow-xl border border-gray-300"
+                    />
+                </div>
+            )}
         </div>
     );
 }
