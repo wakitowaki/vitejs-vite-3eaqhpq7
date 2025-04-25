@@ -98,6 +98,19 @@ export default function UserDashboard() {
         }
     };
 
+    const handleCancelEdit = () => {
+        setEditingCardId(null);
+        setOriginalCardData(null);
+        setName("");
+        setEdition("");
+        setFoilCopies(0);
+        setNonFoilCopies(0);
+        setNotes("");
+        setPreviewImage(null);
+        setSuggestions([]);
+    };
+
+
     const getTotalLoaned = (loans) => loans.reduce((sum, loan) => sum + (loan.quantity || 0), 0);
 
     const getTotalLoanedFoil = (loans, foilStatus) =>
@@ -233,6 +246,14 @@ export default function UserDashboard() {
                     >
                         {editingCardId ? "💾 Salva modifica" : "➕ Aggiungi carta"}
                     </button>
+                    {editingCardId && (
+                        <button
+                            onClick={handleCancelEdit}
+                            className="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mt-2"
+                        >
+                            ❌ Annulla modifica
+                        </button>
+                    )}
 
                     {successMessage && (
                         <div className="text-green-600 text-center mt-2">{successMessage}</div>
