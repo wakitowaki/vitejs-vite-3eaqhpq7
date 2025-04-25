@@ -10,6 +10,8 @@ export default function CardList() {
     const [loanQuantity, setLoanQuantity] = useState(1);
     const [loanFoil, setLoanFoil] = useState(false);
     const [loanNote, setLoanNote] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+
 
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
@@ -83,14 +85,24 @@ export default function CardList() {
         fetchCards();
     };
 
-    const filteredCards = filter === "Tutti"
-        ? cards
-        : cards.filter(card => card.owner === filter);
+    const filteredCards = cards.filter(card => {
+        const matchesOwner = filter === "Tutti" || card.owner === filter;
+        const matchesSearch = card.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesOwner && matchesSearch;
+    });
 
     return (
         <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">📋 Tutte le carte</h2>
-
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="🔎 Cerca carta..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full border p-2 rounded"
+                />
+            </div>
             <div className="mb-6 flex flex-wrap gap-2">
                 {["Tutti", "Matteo", "Giacomo", "Marcello"].map(owner => (
                     <button
