@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function UserDashboard() {
@@ -15,13 +15,18 @@ export default function UserDashboard() {
         fetchCards();
     }, []);
 
-    const getTotalLoaned = (loans) =>
-        loans.reduce((sum, loan) => sum + (loan.quantity || 0), 0);
+    const getTotalLoanedFoil = (loans, foilStatus) =>
+        loans
+            .filter(loan => loan.foil === foilStatus)
+            .reduce((sum, loan) => sum + (loan.quantity || 0), 0);
 
     const ownerCards = cards.filter(card => card.owner === selectedOwner);
-    const inPrestito = ownerCards.filter(card => getTotalLoaned(card.loans || []) > 0);
+    const inPrestito = ownerCards.filter(card => {
+        const totalLoaned = card.loans?.reduce((sum, loan) => sum + (loan.quantity || 0), 0) || 0;
+        return totalLoaned > 0;
+    });
     const disponibili = ownerCards.filter(card => {
-        const totalLoaned = getTotalLoaned(card.loans || []);
+        const totalLoaned = card.loans?.reduce((sum, loan) => sum + (loan.quantity || 0), 0) || 0;
         return (Array.isArray(card.copies) ? card.copies.length : card.copies) - totalLoaned > 0;
     });
 
@@ -43,6 +48,7 @@ export default function UserDashboard() {
 
             <h2 className="text-2xl font-bold text-blue-800 mb-4">📂 Dashboard di {selectedOwner}</h2>
 
+            {/* Carte in prestito */}
             <div className="mb-6">
                 <h3 className="text-xl font-semibold text-yellow-700 mb-2">🔒 Carte in prestito</h3>
                 {inPrestito.length === 0 ? (
@@ -68,6 +74,7 @@ export default function UserDashboard() {
                 )}
             </div>
 
+            {/* Carte disponibili */}
             <div>
                 <h3 className="text-xl font-semibold text-green-700 mb-2">✅ Carte disponibili</h3>
                 {disponibili.length === 0 ? (
@@ -75,11 +82,20 @@ export default function UserDashboard() {
                 ) : (
                     <ul className="space-y-4">
                         {disponibili.map(card => {
-                            const totalLoaned = getTotalLoaned(card.loans || []);
-                            const remaining = (Array.isArray(card.copies) ? card.copies.length : card.copies) - totalLoaned;
+                            const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
+                            const totalLoanedFoil = getTotalLoanedFoil(card.loans || [], true);
+                            const totalLoanedNonFoil = getTotalLoanedFoil(card.loans || [], false);
+
+                            const availableFoil = copies.filter(c => c.foil).length - totalLoanedFoil;
+                            const availableNonFoil = copies.filter(c => !c.foil).length - totalLoanedNonFoil;
+
                             return (
                                 <li key={card.id} className="border p-3 rounded bg-green-50">
-                                    <strong>{card.name}</strong> - {remaining} disponibile(i)
+                                    <div className="font-bold">{card.name}</div>
+                                    <div className="text-sm text-gray-700 mt-1">
+                                        ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
+                                        🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
+                                    </div>
                                 </li>
                             );
                         })}
