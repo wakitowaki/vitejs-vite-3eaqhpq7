@@ -17,6 +17,9 @@ export default function UserDashboard() {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [editingCardId, setEditingCardId] = useState(null);
     const [originalCardData, setOriginalCardData] = useState(null);
+    const [priceEur, setPriceEur] = useState(null);
+    const [priceEurFoil, setPriceEurFoil] = useState(null);
+
 
     useEffect(() => {
         fetchCards();
@@ -46,7 +49,9 @@ export default function UserDashboard() {
                 edition: edition.trim(),
                 notes: notes.trim(),
                 copies: copies,
-                imageUrl: previewImage || null
+                imageUrl: previewImage || null,
+                priceEur: priceEur,
+                priceEurFoil: priceEurFoil
             });
             setSuccessMessage("✅ Carta aggiornata con successo!");
         } else {
@@ -57,7 +62,9 @@ export default function UserDashboard() {
                 notes: notes.trim(),
                 copies: copies,
                 loans: [],
-                imageUrl: previewImage || null
+                imageUrl: previewImage || null,
+                priceEur: priceEur,
+                priceEurFoil: priceEurFoil
             });
             setSuccessMessage("✅ Carta aggiunta con successo!");
         }
@@ -71,6 +78,8 @@ export default function UserDashboard() {
         setPreviewImage(null);
         setEditingCardId(null);
         setOriginalCardData(null);
+        setPriceEur(null);
+        setPriceEurFoil(null);
         fetchCards();
 
         setTimeout(() => setSuccessMessage(""), 3000);
@@ -108,6 +117,8 @@ export default function UserDashboard() {
         setNotes("");
         setPreviewImage(null);
         setSuggestions([]);
+        setPriceEur(null);
+        setPriceEurFoil(null);
     };
 
 
@@ -160,6 +171,8 @@ export default function UserDashboard() {
                                             const results = data.data.map(card => ({
                                                 name: card.name,
                                                 image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
+                                                priceEur: card.prices?.eur || null,
+                                                priceEurFoil: card.prices?.eur_foil || null,
                                             }));
                                             setSuggestions(results.slice(0, 10));
                                         } catch (error) {
@@ -185,6 +198,8 @@ export default function UserDashboard() {
                                                 setName(s.name);
                                                 setSuggestions([]);
                                                 setPreviewImage(s.image);
+                                                setPriceEur(s.priceEur); // 👈 lo aggiungiamo subito
+                                                setPriceEurFoil(s.priceEurFoil);
                                             }}
                                             className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
                                         >
