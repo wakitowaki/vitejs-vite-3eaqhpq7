@@ -18,7 +18,7 @@ function App() {
                                 onClick={() => setView("collection")}
                                 className={`px-4 py-2 rounded ${view === "collection" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
                             >
-                                Collezione
+                                Prestiti
                             </button>
                             <button
                                 onClick={() => setView("dashboard")}

@@ -334,12 +334,16 @@ export default function CardList() {
                                                 Rimuovi tutti i prestiti
                                             </button>
                                         )}
+                                        
+                                        <!-- decommentare per aggiungere elimina anche in collezione
                                         <button
                                             onClick={() => handleDeleteCard(card)}
                                             className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
                                         >
                                             Elimina carta
                                         </button>
+                                        -->
+                                        
                                     </div>
                                 </div>
 
