@@ -389,10 +389,7 @@ export default function UserDashboard() {
                     </button>
                     <button
                         onClick={() => setViewMode("grid")}
-                        className={`p-4 rounded-lg transition-all duration-300 ${viewMode === "grid"
-                            ? "bg-white bg-opacity-70 shadow-md border border-gray-200 flex flex-col items-center text-center hover:shadow-lg hover:scale-105 min-h-[300px]"
-                            : "bg-green-50 flex justify-between items-start"
-                        }`}
+                        className={`px-4 py-2 rounded ${viewMode === "grid" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
                     >
                         🖼️ Griglia
                     </button>
@@ -440,7 +437,13 @@ export default function UserDashboard() {
                                     return (
                                         <div
                                             key={card.id}
-                                            className={`border p-3 rounded ${viewMode === "grid" ? "bg-white flex flex-col items-center text-center" : "bg-green-50 flex justify-between items-start"}`}
+                                        <div
+                                            key={card.id}
+                                            className={`p-4 rounded-lg transition-all duration-300 ${viewMode === "grid"
+                                                ? "bg-white bg-opacity-70 shadow-md border border-gray-200 flex flex-col items-center text-center hover:shadow-lg hover:scale-105 min-h-[300px]"
+                                                : "bg-green-50 flex justify-between items-start"
+                                            }`}
+                                        >
                                         >
                                             <div className={`flex-1 ${viewMode === "grid" ? "" : "pr-4"}`}>
                                                 <div className="font-bold">{card.name}</div>
