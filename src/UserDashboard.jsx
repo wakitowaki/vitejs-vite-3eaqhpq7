@@ -371,7 +371,21 @@ export default function UserDashboard() {
                     <p className="text-gray-500">Nessuna carta disponibile.</p>) : 
                     (
                     <ul className="space-y-4">
-                        {disponibili.map(card => {
+                        {disponibili
+                            .filter(card => card.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                            .sort((a, b) => {
+                                const nameA = a.name.toLowerCase();
+                                const nameB = b.name.toLowerCase();
+                                const priceA = parseFloat(a.priceEur || 0) + parseFloat(a.priceEurFoil || 0);
+                                const priceB = parseFloat(b.priceEur || 0) + parseFloat(b.priceEurFoil || 0);
+
+                                if (sortOption === "nameAsc") return nameA.localeCompare(nameB);
+                                if (sortOption === "nameDesc") return nameB.localeCompare(nameA);
+                                if (sortOption === "priceAsc") return priceA - priceB;
+                                if (sortOption === "priceDesc") return priceB - priceA;
+
+                                return 0;
+                            }).map(card => {
                             const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
                             const totalLoanedFoil = getTotalLoanedFoil(card.loans || [], true);
                             const totalLoanedNonFoil = getTotalLoanedFoil(card.loans || [], false);
