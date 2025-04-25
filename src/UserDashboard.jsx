@@ -199,11 +199,19 @@ export default function UserDashboard() {
                             return (
                                 <li key={card.id} className="border p-3 rounded bg-green-50">
                                     <div className="font-bold">{card.name}</div>
+
+                                    {card.notes && (
+                                        <div className="text-sm italic text-gray-500 mt-1">
+                                            📝 {card.notes}
+                                        </div>
+                                    )}
+
                                     <div className="text-sm text-gray-700 mt-1">
                                         ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
                                         🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
                                     </div>
                                 </li>
+
                             );
                         })}
                     </ul>
