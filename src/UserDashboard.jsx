@@ -277,7 +277,7 @@ export default function UserDashboard() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div className="bg-gray-100 p-4 rounded text-center">
-                    <div className="text-sm text-gray-500">Carte Totali</div>
+                    <div className="text-sm text-gray-500">Carte Diverse</div>
                     <div className="text-xl font-bold">{ownerCards.length}</div>
                 </div>
                 <div className="bg-gray-100 p-4 rounded text-center">
