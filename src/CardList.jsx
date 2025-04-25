@@ -102,7 +102,6 @@ export default function CardList() {
         <div className="bg-white rounded-xl shadow-md p-6" onMouseMove={handleMouseMove}>
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">📋 Tutte le carte</h2>
 
-            {/* Ricerca */}
             <div className="mb-4 relative">
                 <input
                     type="text"
@@ -142,7 +141,6 @@ export default function CardList() {
                 )}
             </div>
 
-            {/* Filtri */}
             <div className="mb-6 flex flex-wrap gap-2">
                 {["Tutti", "Matteo", "Giacomo", "Marcello"].map(owner => (
                     <button
@@ -159,7 +157,6 @@ export default function CardList() {
                 ))}
             </div>
 
-            {/* Lista carte */}
             {filteredCards.length === 0 ? (
                 <p className="text-gray-500">Nessuna carta trovata.</p>
             ) : (
@@ -167,17 +164,14 @@ export default function CardList() {
                     {filteredCards.map(card => {
                         const totalLoaned = card.loans.reduce((sum, loan) => sum + (loan.quantity || 0), 0);
                         const totalCopies = Array.isArray(card.copies) ? card.copies.length : card.copies;
-
                         const foilCopies = Array.isArray(card.copies)
                             ? card.copies.filter(copy => copy.foil).length
                             : 0;
                         const nonFoilCopies = Array.isArray(card.copies)
                             ? card.copies.filter(copy => !copy.foil).length
                             : card.copies;
-
                         const loanedFoil = getTotalLoanedFoil(card.loans, true);
                         const loanedNonFoil = getTotalLoanedFoil(card.loans, false);
-
                         const availableFoil = foilCopies - loanedFoil;
                         const availableNonFoil = nonFoilCopies - loanedNonFoil;
 
@@ -225,6 +219,122 @@ export default function CardList() {
                                             ))}
                                         </ul>
                                     )}
+
+                                    {editingId === card.id && (
+                                        <div className="space-y-2 mb-4">
+                                            <input
+                                                type="text"
+                                                value={loanedTo}
+                                                onChange={(e) => setLoanedTo(e.target.value)}
+                                                placeholder="A chi prestare?"
+                                                className="w-full border p-2 rounded"
+                                            />
+                                            <div className="flex gap-2">
+                                                {["Matteo", "Giacomo", "Marcello"].map(user => (
+                                                    <button
+                                                        key={user}
+                                                        type="button"
+                                                        onClick={() => setLoanedTo(user)}
+                                                        className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
+                                                            loanedTo === user
+                                                                ? "bg-blue-600 text-white"
+                                                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                                        }`}
+                                                    >
+                                                        {user}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={loanQuantity}
+                                                onChange={(e) => setLoanQuantity(e.target.value)}
+                                                placeholder="Numero copie"
+                                                className="w-full border p-2 rounded"
+                                            />
+
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setLoanFoil(false)}
+                                                    type="button"
+                                                    className={`px-4 py-2 rounded-full ${!loanFoil ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+                                                >
+                                                    Non Foil
+                                                </button>
+                                                <button
+                                                    onClick={() => setLoanFoil(true)}
+                                                    type="button"
+                                                    className={`px-4 py-2 rounded-full ${loanFoil ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+                                                >
+                                                    Foil
+                                                </button>
+                                            </div>
+
+                                            <textarea
+                                                value={loanNote}
+                                                onChange={(e) => setLoanNote(e.target.value)}
+                                                placeholder="Nota sul prestito (facoltativa)"
+                                                className="w-full border p-2 rounded"
+                                                rows="2"
+                                            />
+
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleAddLoan(card)}
+                                                    className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700"
+                                                >
+                                                    Salva prestito
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingId(null);
+                                                        setLoanedTo("");
+                                                        setLoanQuantity(1);
+                                                        setLoanFoil(false);
+                                                        setLoanNote("");
+                                                    }}
+                                                    className="bg-gray-400 text-white px-3 py-2 rounded hover:bg-gray-500"
+                                                >
+                                                    Annulla
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        <button
+                                            onClick={() => {
+                                                setEditingId(card.id);
+                                                setLoanedTo("");
+                                                setLoanQuantity(1);
+                                                setLoanFoil(false);
+                                                setLoanNote("");
+                                            }}
+                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                        >
+                                            Aggiungi prestito
+                                        </button>
+                                        {card.loans.length > 0 && (
+                                            <button
+                                                onClick={async () => {
+                                                    const cardRef = doc(db, "cards", card.id);
+                                                    await updateDoc(cardRef, { loans: [] });
+                                                    fetchCards();
+                                                }}
+                                                className="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600"
+                                            >
+                                                Rimuovi tutti i prestiti
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => handleDeleteCard(card)}
+                                            className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                                        >
+                                            Elimina carta
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {card.imageUrl && (
