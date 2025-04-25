@@ -25,8 +25,36 @@ export default function CardList() {
         fetchCards();
     }, []);
 
+    const getTotalLoanedFoil = (loans, foilStatus) =>
+        loans
+            .filter(loan => loan.foil === foilStatus)
+            .reduce((sum, loan) => sum + (loan.quantity || 0), 0);
+
     const handleAddLoan = async (card) => {
         if (!loanedTo.trim() || loanQuantity <= 0) return;
+
+        const foilCopies = Array.isArray(card.copies)
+            ? card.copies.filter(copy => copy.foil).length
+            : 0;
+        const nonFoilCopies = Array.isArray(card.copies)
+            ? card.copies.filter(copy => !copy.foil).length
+            : card.copies;
+
+        const loanedFoil = getTotalLoanedFoil(card.loans, true);
+        const loanedNonFoil = getTotalLoanedFoil(card.loans, false);
+
+        const availableFoil = foilCopies - loanedFoil;
+        const availableNonFoil = nonFoilCopies - loanedNonFoil;
+
+        if (loanFoil && loanQuantity > availableFoil) {
+            alert(`Non ci sono abbastanza copie Foil disponibili (${availableFoil})`);
+            return;
+        }
+
+        if (!loanFoil && loanQuantity > availableNonFoil) {
+            alert(`Non ci sono abbastanza copie Non Foil disponibili (${availableNonFoil})`);
+            return;
+        }
 
         const cardRef = doc(db, "cards", card.id);
 
@@ -55,9 +83,6 @@ export default function CardList() {
         fetchCards();
     };
 
-    const getTotalLoaned = (loans) =>
-        loans.reduce((sum, loan) => sum + (loan.quantity || 0), 0);
-
     const filteredCards = filter === "Tutti"
         ? cards
         : cards.filter(card => card.owner === filter);
@@ -67,7 +92,7 @@ export default function CardList() {
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">📋 Tutte le carte</h2>
 
             <div className="mb-6 flex flex-wrap gap-2">
-                {['Tutti', 'Matteo', 'Giacomo', 'Marcello'].map(owner => (
+                {["Tutti", "Matteo", "Giacomo", "Marcello"].map(owner => (
                     <button
                         key={owner}
                         onClick={() => setFilter(owner)}
@@ -87,9 +112,22 @@ export default function CardList() {
             ) : (
                 <ul className="space-y-4">
                     {filteredCards.map(card => {
-                        const totalLoaned = getTotalLoaned(card.loans);
+                        const totalLoaned = card.loans.reduce((sum, loan) => sum + (loan.quantity || 0), 0);
                         const totalCopies = Array.isArray(card.copies) ? card.copies.length : card.copies;
                         const remaining = totalCopies - totalLoaned;
+
+                        const foilCopies = Array.isArray(card.copies)
+                            ? card.copies.filter(copy => copy.foil).length
+                            : 0;
+                        const nonFoilCopies = Array.isArray(card.copies)
+                            ? card.copies.filter(copy => !copy.foil).length
+                            : card.copies;
+
+                        const loanedFoil = getTotalLoanedFoil(card.loans, true);
+                        const loanedNonFoil = getTotalLoanedFoil(card.loans, false);
+
+                        const availableFoil = foilCopies - loanedFoil;
+                        const availableNonFoil = nonFoilCopies - loanedNonFoil;
 
                         return (
                             <li key={card.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
@@ -101,12 +139,11 @@ export default function CardList() {
                                 {card.notes && (
                                     <div className="text-sm text-gray-500 italic">📝 {card.notes}</div>
                                 )}
-                                <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                                <div className="text-sm text-gray-600 mb-1">
                                     📦 Totale copie: {totalCopies}
                                 </div>
-
                                 <div className="text-sm text-gray-600 mb-2">
-                                    🧮 In prestito: {totalLoaned} | Disponibili: {remaining}
+                                    ✨ Foil: {availableFoil} | 🃏 Non Foil: {availableNonFoil}
                                 </div>
 
                                 {card.loans.length > 0 && (
@@ -138,31 +175,29 @@ export default function CardList() {
 
                                 {editingId === card.id ? (
                                     <div className="space-y-2">
-                                        <div className="space-y-2">
-                                            <input
-                                                type="text"
-                                                value={loanedTo}
-                                                onChange={(e) => setLoanedTo(e.target.value)}
-                                                placeholder="A chi prestare?"
-                                                className="w-full border p-2 rounded"
-                                            />
+                                        <input
+                                            type="text"
+                                            value={loanedTo}
+                                            onChange={(e) => setLoanedTo(e.target.value)}
+                                            placeholder="A chi prestare?"
+                                            className="w-full border p-2 rounded"
+                                        />
 
-                                            <div className="flex gap-2">
-                                                {["Matteo", "Giacomo", "Marcello"].map(user => (
-                                                    <button
-                                                        key={user}
-                                                        type="button"
-                                                        onClick={() => setLoanedTo(user)}
-                                                        className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
-                                                            loanedTo === user
-                                                                ? "bg-blue-600 text-white"
-                                                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                                                        }`}
-                                                    >
-                                                        {user}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                        <div className="flex gap-2">
+                                            {["Matteo", "Giacomo", "Marcello"].map(user => (
+                                                <button
+                                                    key={user}
+                                                    type="button"
+                                                    onClick={() => setLoanedTo(user)}
+                                                    className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
+                                                        loanedTo === user
+                                                            ? "bg-blue-600 text-white"
+                                                            : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                                    }`}
+                                                >
+                                                    {user}
+                                                </button>
+                                            ))}
                                         </div>
 
                                         <input
@@ -236,24 +271,6 @@ export default function CardList() {
                                                 Aggiungi prestito
                                             </button>
                                         )}
-                                        {card.loans.length > 0 && (
-                                            <button
-                                                onClick={async () => {
-                                                    const cardRef = doc(db, "cards", card.id);
-                                                    await updateDoc(cardRef, { loans: [] });
-                                                    fetchCards();
-                                                }}
-                                                className="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600"
-                                            >
-                                                Rimuovi tutti i prestiti
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() => handleDeleteCard(card)}
-                                            className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
-                                        >
-                                            Elimina
-                                        </button>
                                     </div>
                                 )}
                             </li>
