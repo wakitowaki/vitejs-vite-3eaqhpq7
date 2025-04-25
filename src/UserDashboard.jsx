@@ -1,19 +1,69 @@
 ﻿import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function UserDashboard() {
     const [cards, setCards] = useState([]);
     const [selectedOwner, setSelectedOwner] = useState("Matteo");
 
+    // Stati per aggiunta nuova carta
+    const [name, setName] = useState("");
+    const [edition, setEdition] = useState("");
+    const [foilCopies, setFoilCopies] = useState(0);
+    const [nonFoilCopies, setNonFoilCopies] = useState(0);
+    const [notes, setNotes] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+
     useEffect(() => {
-        const fetchCards = async () => {
-            const querySnapshot = await getDocs(collection(db, "cards"));
-            const allCards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setCards(allCards);
-        };
         fetchCards();
     }, []);
+
+    const fetchCards = async () => {
+        const querySnapshot = await getDocs(collection(db, "cards"));
+        const allCards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setCards(allCards);
+    };
+
+    const handleAddCard = async () => {
+        if (!name.trim()) {
+            alert("Inserisci il nome della carta!");
+            return;
+        }
+
+        const copies = [];
+
+        for (let i = 0; i < foilCopies; i++) {
+            copies.push({ foil: true });
+        }
+        for (let i = 0; i < nonFoilCopies; i++) {
+            copies.push({ foil: false });
+        }
+
+        await addDoc(collection(db, "cards"), {
+            name: name.trim(),
+            owner: selectedOwner,
+            edition: edition.trim(),
+            notes: notes.trim(),
+            copies: copies,
+            loans: []
+        });
+
+        setName("");
+        setEdition("");
+        setFoilCopies(0);
+        setNonFoilCopies(0);
+        setNotes("");
+        setSuccessMessage("✅ Carta aggiunta con successo!");
+
+        fetchCards();
+
+        setTimeout(() => {
+            setSuccessMessage("");
+        }, 3000);
+    };
+
+    const getTotalLoaned = (loans) =>
+        loans.reduce((sum, loan) => sum + (loan.quantity || 0), 0);
 
     const getTotalLoanedFoil = (loans, foilStatus) =>
         loans
@@ -21,19 +71,18 @@ export default function UserDashboard() {
             .reduce((sum, loan) => sum + (loan.quantity || 0), 0);
 
     const ownerCards = cards.filter(card => card.owner === selectedOwner);
-    const inPrestito = ownerCards.filter(card => {
-        const totalLoaned = card.loans?.reduce((sum, loan) => sum + (loan.quantity || 0), 0) || 0;
-        return totalLoaned > 0;
-    });
+    const inPrestito = ownerCards.filter(card => getTotalLoaned(card.loans || []) > 0);
     const disponibili = ownerCards.filter(card => {
-        const totalLoaned = card.loans?.reduce((sum, loan) => sum + (loan.quantity || 0), 0) || 0;
+        const totalLoaned = getTotalLoaned(card.loans || []);
         return (Array.isArray(card.copies) ? card.copies.length : card.copies) - totalLoaned > 0;
     });
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md">
             <div className="mb-6">
-                <label htmlFor="owner" className="block text-sm font-medium text-gray-700 mb-1">Seleziona utente:</label>
+                <label htmlFor="owner" className="block text-sm font-medium text-gray-700 mb-1">
+                    Seleziona utente:
+                </label>
                 <select
                     id="owner"
                     value={selectedOwner}
@@ -46,10 +95,68 @@ export default function UserDashboard() {
                 </select>
             </div>
 
-            <h2 className="text-2xl font-bold text-blue-800 mb-4">📂 Dashboard di {selectedOwner}</h2>
+            {/* FORM Aggiungi nuova carta */}
+            <div className="mb-8">
+                <h3 className="text-xl font-bold text-blue-800 mb-4">➕ Aggiungi nuova carta</h3>
+                <div className="space-y-3">
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Nome carta"
+                        className="w-full border p-2 rounded"
+                    />
+                    <input
+                        type="text"
+                        value={edition}
+                        onChange={(e) => setEdition(e.target.value)}
+                        placeholder="Edizione"
+                        className="w-full border p-2 rounded"
+                    />
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block text-sm mb-1">✨ Copie Foil</label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={foilCopies}
+                                onChange={(e) => setFoilCopies(Number(e.target.value))}
+                                className="w-full border p-2 rounded"
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-sm mb-1">🃏 Copie Non Foil</label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={nonFoilCopies}
+                                onChange={(e) => setNonFoilCopies(Number(e.target.value))}
+                                className="w-full border p-2 rounded"
+                            />
+                        </div>
+                    </div>
+                    <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Note (facoltative)"
+                        className="w-full border p-2 rounded"
+                        rows="2"
+                    />
+                    <button
+                        onClick={handleAddCard}
+                        className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                        ➕ Aggiungi carta
+                    </button>
+
+                    {successMessage && (
+                        <div className="text-green-600 text-center mt-2">{successMessage}</div>
+                    )}
+                </div>
+            </div>
 
             {/* Carte in prestito */}
-            <div className="mb-6">
+            <div className="mb-8">
                 <h3 className="text-xl font-semibold text-yellow-700 mb-2">🔒 Carte in prestito</h3>
                 {inPrestito.length === 0 ? (
                     <p className="text-gray-500">Nessuna carta in prestito.</p>
