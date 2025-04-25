@@ -141,10 +141,15 @@ export default function UserDashboard() {
                             )}
                         </div>
                         {previewImage && (
-                            <div className="hidden sm:block w-36 absolute right-[-160px] top-0 z-20">
-                                <img src={previewImage} alt="Preview" className="rounded shadow-lg" />
+                            <div className="hidden sm:block w-52 absolute right-[-220px] top-0 z-20">
+                                <img
+                                    src={previewImage}
+                                    alt="Preview"
+                                    className="rounded-xl shadow-lg border border-gray-200"
+                                />
                             </div>
                         )}
+
                     </div>
 
                     <input
