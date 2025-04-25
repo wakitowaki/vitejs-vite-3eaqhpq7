@@ -175,6 +175,9 @@ export default function CardList() {
 
                         return (
                             <li key={card.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
+                                {card.imageUrl && (
+                                    <img src={card.imageUrl} alt={card.name} className="w-24 h-auto mb-2 rounded shadow" />
+                                )}
                                 <div className="text-lg font-bold text-gray-800">{card.name}</div>
                                 <div className="text-sm text-gray-600">👤 {card.owner}</div>
                                 {card.edition && (
