@@ -11,6 +11,7 @@ export default function CardList() {
     const [loanFoil, setLoanFoil] = useState(false);
     const [loanNote, setLoanNote] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
+    const [suggestions, setSuggestions] = useState([]);
 
 
     const fetchCards = async () => {
@@ -94,15 +95,46 @@ export default function CardList() {
     return (
         <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">📋 Tutte le carte</h2>
-            <div className="mb-4">
+            <div className="mb-4 relative">
                 <input
                     type="text"
                     placeholder="🔎 Cerca carta..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                        const query = e.target.value;
+                        setSearchQuery(query);
+
+                        if (query.length > 0) {
+                            const filteredSuggestions = cards
+                                .map(card => card.name)
+                                .filter(name => name.toLowerCase().includes(query.toLowerCase()));
+                            setSuggestions(filteredSuggestions.slice(0, 5)); // massimo 5 suggerimenti
+                        } else {
+                            setSuggestions([]);
+                        }
+                    }}
                     className="w-full border p-2 rounded"
                 />
+
+                {/* Lista suggerimenti */}
+                {suggestions.length > 0 && (
+                    <ul className="absolute bg-white border rounded w-full mt-1 shadow-lg z-10">
+                        {suggestions.map((suggestion, index) => (
+                            <li
+                                key={index}
+                                onClick={() => {
+                                    setSearchQuery(suggestion);
+                                    setSuggestions([]);
+                                }}
+                                className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
+                            >
+                                {suggestion}
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
+
             <div className="mb-6 flex flex-wrap gap-2">
                 {["Tutti", "Matteo", "Giacomo", "Marcello"].map(owner => (
                     <button
