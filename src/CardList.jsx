@@ -173,8 +173,9 @@ export default function CardList() {
                                     </ul>
                                 )}
 
-                                {editingId === card.id ? (
-                                    <div className="space-y-2">
+                                {/* Form di aggiunta prestito */}
+                                {editingId === card.id && (
+                                    <div className="space-y-2 mb-4">
                                         <input
                                             type="text"
                                             value={loanedTo}
@@ -255,24 +256,41 @@ export default function CardList() {
                                             </button>
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="flex flex-wrap gap-2">
-                                        {remaining > 0 && (
-                                            <button
-                                                onClick={() => {
-                                                    setEditingId(card.id);
-                                                    setLoanedTo("");
-                                                    setLoanQuantity(1);
-                                                    setLoanFoil(false);
-                                                    setLoanNote("");
-                                                }}
-                                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                            >
-                                                Aggiungi prestito
-                                            </button>
-                                        )}
-                                    </div>
                                 )}
+
+                                {/* Bottoni sempre visibili */}
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setEditingId(card.id);
+                                            setLoanedTo("");
+                                            setLoanQuantity(1);
+                                            setLoanFoil(false);
+                                            setLoanNote("");
+                                        }}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    >
+                                        Aggiungi prestito
+                                    </button>
+                                    {card.loans.length > 0 && (
+                                        <button
+                                            onClick={async () => {
+                                                const cardRef = doc(db, "cards", card.id);
+                                                await updateDoc(cardRef, { loans: [] });
+                                                fetchCards();
+                                            }}
+                                            className="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600"
+                                        >
+                                            Rimuovi tutti i prestiti
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => handleDeleteCard(card)}
+                                        className="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700"
+                                    >
+                                        Elimina carta
+                                    </button>
+                                </div>
                             </li>
                         );
                     })}
