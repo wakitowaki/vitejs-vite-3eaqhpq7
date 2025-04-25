@@ -33,7 +33,20 @@ export default function UserDashboard() {
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
         const allCards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setCards(allCards);
+
+        const now = new Date();
+        const oneDayMs = 24 * 60 * 60 * 1000; // un giorno in millisecondi
+
+        for (const card of allCards) {
+            const lastUpdate = card.lastPriceUpdate ? new Date(card.lastPriceUpdate) : null;
+
+            if (!lastUpdate || (now - lastUpdate > oneDayMs)) {
+                // mai aggiornato o aggiornato più di 1 giorno fa
+                await updateCardPrice(card);
+            }
+        }
+
+        setCards(allCards); // carichiamo comunque tutte
     };
 
     const handleAddOrUpdateCard = async () => {
@@ -56,7 +69,8 @@ export default function UserDashboard() {
                 copies: copies,
                 imageUrl: previewImage || null,
                 priceEur: priceEur,
-                priceEurFoil: priceEurFoil
+                priceEurFoil: priceEurFoil,
+                lastPriceUpdate: new Date().toISOString()
             });
             setSuccessMessage("✅ Carta aggiornata con successo!");
         } else {
@@ -69,7 +83,8 @@ export default function UserDashboard() {
                 loans: [],
                 imageUrl: previewImage || null,
                 priceEur: priceEur,
-                priceEurFoil: priceEurFoil
+                priceEurFoil: priceEurFoil,
+                lastPriceUpdate: new Date().toISOString()
             });
             setSuccessMessage("✅ Carta aggiunta con successo!");
         }
@@ -109,6 +124,25 @@ export default function UserDashboard() {
             const cardRef = doc(db, "cards", cardId);
             await deleteDoc(cardRef);
             fetchCards();
+        }
+    };
+
+    const updateCardPrice = async (card) => {
+        try {
+            const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${card.name}`)}`);
+            const data = await res.json();
+            const foundCard = data.data?.[0];
+
+            if (foundCard) {
+                const cardRef = doc(db, "cards", card.id);
+                await updateDoc(cardRef, {
+                    priceEur: foundCard.prices?.eur || null,
+                    priceEurFoil: foundCard.prices?.eur_foil || null,
+                    lastPriceUpdate: new Date().toISOString() // aggiorniamo anche la data
+                });
+            }
+        } catch (error) {
+            console.error("Errore aggiornamento prezzo:", error);
         }
     };
 
