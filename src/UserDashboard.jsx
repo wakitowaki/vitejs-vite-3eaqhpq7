@@ -386,78 +386,79 @@ export default function UserDashboard() {
                 {disponibili.length === 0 ? (
                     <p className="text-gray-500">Nessuna carta disponibile.</p>) : 
                     (
-                    <ul className="space-y-4">
-                        {disponibili
-                            .filter(card => card.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                            .sort((a, b) => {
-                                const nameA = a.name.toLowerCase();
-                                const nameB = b.name.toLowerCase();
-                                const priceA = parseFloat(a.priceEur || 0) + parseFloat(a.priceEurFoil || 0);
-                                const priceB = parseFloat(b.priceEur || 0) + parseFloat(b.priceEurFoil || 0);
+                        <div className={viewMode === "grid" ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" : "space-y-4"}>
+                            {disponibili
+                                .filter(card => card.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                .sort((a, b) => {
+                                    const nameA = a.name.toLowerCase();
+                                    const nameB = b.name.toLowerCase();
+                                    const priceA = parseFloat(a.priceEur || 0) + parseFloat(a.priceEurFoil || 0);
+                                    const priceB = parseFloat(b.priceEur || 0) + parseFloat(b.priceEurFoil || 0);
+                                    if (sortOption === "nameAsc") return nameA.localeCompare(nameB);
+                                    if (sortOption === "nameDesc") return nameB.localeCompare(nameA);
+                                    if (sortOption === "priceAsc") return priceA - priceB;
+                                    if (sortOption === "priceDesc") return priceB - priceA;
+                                    return 0;
+                                })
+                                .map(card => {
+                                    const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
+                                    const totalLoanedFoil = getTotalLoanedFoil(card.loans || [], true);
+                                    const totalLoanedNonFoil = getTotalLoanedFoil(card.loans || [], false);
+                                    const availableFoil = copies.filter(c => c.foil).length - totalLoanedFoil;
+                                    const availableNonFoil = copies.filter(c => !c.foil).length - totalLoanedNonFoil;
 
-                                if (sortOption === "nameAsc") return nameA.localeCompare(nameB);
-                                if (sortOption === "nameDesc") return nameB.localeCompare(nameA);
-                                if (sortOption === "priceAsc") return priceA - priceB;
-                                if (sortOption === "priceDesc") return priceB - priceA;
-
-                                return 0;
-                            }).map(card => {
-                            const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
-                            const totalLoanedFoil = getTotalLoanedFoil(card.loans || [], true);
-                            const totalLoanedNonFoil = getTotalLoanedFoil(card.loans || [], false);
-                            const availableFoil = copies.filter(c => c.foil).length - totalLoanedFoil;
-                            const availableNonFoil = copies.filter(c => !c.foil).length - totalLoanedNonFoil;
-                            return (
-                                <li key={card.id} className="border p-3 rounded bg-green-50 flex justify-between items-start">
-                                    <div className="flex-1 pr-4">
-                                        <div className="font-bold">{card.name}</div>
-                                        {card.notes && (
-                                            <div className="text-sm italic text-gray-500 mt-1">
-                                                📝 {card.notes}
-                                            </div>
-                                        )}
-                                        <div className="text-sm text-gray-700 mt-1">
-                                            ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
-                                            🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
-                                        </div>
-                                        {(card.priceEur || card.priceEurFoil) && (
-                                            <div className="text-sm text-gray-700 mt-1">
-                                                💶 Prezzo stimato:{" "}
-                                                {card.priceEur ? `Normale €${parseFloat(card.priceEur).toFixed(2)}` : "-"}
-                                                {card.priceEurFoil ? ` / Foil €${parseFloat(card.priceEurFoil).toFixed(2)}` : ""}
-                                            </div>
-                                        )}
-
-
-                                        <div className="flex gap-2 mt-3">
-                                            <button
-                                                onClick={() => handleEditCard(card)}
-                                                className="text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                                            >
-                                                ✏️ Modifica
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteCard(card.id)}
-                                                className="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                                            >
-                                                🗑️ Elimina
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {card.imageUrl && (
+                                    return (
                                         <div
-                                            className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
-                                            onMouseEnter={() => setHoveredImage(card.imageUrl)}
-                                            onMouseLeave={() => setHoveredImage(null)}
+                                            key={card.id}
+                                            className={`border p-3 rounded ${viewMode === "grid" ? "bg-white flex flex-col items-center text-center" : "bg-green-50 flex justify-between items-start"}`}
                                         >
-                                            <img src={card.imageUrl} alt={card.name} className="rounded" />
+                                            <div className={`flex-1 ${viewMode === "grid" ? "" : "pr-4"}`}>
+                                                <div className="font-bold">{card.name}</div>
+                                                {card.notes && (
+                                                    <div className="text-sm italic text-gray-500 mt-1">📝 {card.notes}</div>
+                                                )}
+                                                <div className="text-sm text-gray-700 mt-1">
+                                                    ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0}<br />
+                                                    🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
+                                                </div>
+                                                {(card.priceEur || card.priceEurFoil) && (
+                                                    <div className="text-sm text-gray-700 mt-1">
+                                                        💶 Prezzo stimato: {card.priceEur ? `Normale €${parseFloat(card.priceEur).toFixed(2)}` : "-"}
+                                                        {card.priceEurFoil ? ` / Foil €${parseFloat(card.priceEurFoil).toFixed(2)}` : ""}
+                                                    </div>
+                                                )}
+                                                {viewMode === "list" && (
+                                                    <div className="flex gap-2 mt-3">
+                                                        <button
+                                                            onClick={() => handleEditCard(card)}
+                                                            className="text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                                                        >
+                                                            ✏️ Modifica
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteCard(card.id)}
+                                                            className="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                                        >
+                                                            🗑️ Elimina
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {card.imageUrl && (
+                                                <div
+                                                    className={`mt-3 ${viewMode === "grid" ? "w-32" : "w-24"} overflow-hidden rounded shadow-md cursor-pointer`}
+                                                    onMouseEnter={() => setHoveredImage(card.imageUrl)}
+                                                    onMouseLeave={() => setHoveredImage(null)}
+                                                >
+                                                    <img src={card.imageUrl} alt={card.name} className="rounded" />
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                )}
+                                    );
+                                })}
+                        </div>
+
+                    )}
             </div>
 
             {hoveredImage && (
