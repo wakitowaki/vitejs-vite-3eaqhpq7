@@ -275,6 +275,27 @@ export default function UserDashboard() {
                     )}
                 </div>
             </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="bg-gray-100 p-4 rounded text-center">
+                    <div className="text-sm text-gray-500">Carte Totali</div>
+                    <div className="text-xl font-bold">{ownerCards.length}</div>
+                </div>
+                <div className="bg-gray-100 p-4 rounded text-center">
+                    <div className="text-sm text-gray-500">Copie Foil Totali</div>
+                    <div className="text-xl font-bold">{ownerCards.reduce((sum, card) => sum + (card.copies?.filter(c => c.foil).length || 0), 0)}</div>
+                </div>
+                <div className="bg-gray-100 p-4 rounded text-center">
+                    <div className="text-sm text-gray-500">Copie Non Foil Totali</div>
+                    <div className="text-xl font-bold">{ownerCards.reduce((sum, card) => sum + (card.copies?.filter(c => !c.foil).length || 0), 0)}</div>
+                </div>
+                <div className="bg-gray-100 p-4 rounded text-center">
+                    <div className="text-sm text-gray-500">Valore Stimato</div>
+                    <div className="text-xl font-bold">
+                        €{ownerCards.reduce((sum, card) => sum + (parseFloat(card.priceEur || 0) * (card.copies?.filter(c => !c.foil).length || 0)) + (parseFloat(card.priceEurFoil || 0) * (card.copies?.filter(c => c.foil).length || 0)), 0).toFixed(2)}
+                    </div>
+                </div>
+            </div>
+
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-yellow-700 mb-2">🔒 Carte in prestito</h3>
                 {inPrestito.length === 0 ? (
@@ -398,13 +419,6 @@ export default function UserDashboard() {
                     />
                 </div>
             )}
-
-
-            {/* Qui continua come prima: carte in prestito, carte disponibili, anteprima immagine */}
-
-            {/* Lista carte in prestito */}
-
-            {/* Lista carte disponibili */}
         </div>
         
     );
