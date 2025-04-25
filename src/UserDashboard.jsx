@@ -116,74 +116,246 @@ export default function UserDashboard() {
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md" onMouseMove={handleMouseMove}>
-            {/* Selezione utente, Aggiunta/Modifica carta */}
-
-            {/* Carte in prestito */}
-
-            {/* Carte disponibili */}
-            {disponibili.length === 0 ? (
-                <p className="text-gray-500">Nessuna carta disponibile.</p>
-            ) : (
-                <ul className="space-y-4">
-                    {disponibili.map(card => {
-                        const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
-                        const totalLoanedFoil = getTotalLoanedFoil(card.loans || [], true);
-                        const totalLoanedNonFoil = getTotalLoanedFoil(card.loans || [], false);
-                        const availableFoil = copies.filter(c => c.foil).length - totalLoanedFoil;
-                        const availableNonFoil = copies.filter(c => !c.foil).length - totalLoanedNonFoil;
-                        return (
-                            <li key={card.id} className="border p-3 rounded bg-green-50 flex justify-between items-start">
-                                <div className="flex-1 pr-4">
-                                    <div className="font-bold">{card.name}</div>
-                                    {card.notes && (
-                                        <div className="text-sm italic text-gray-500 mt-1">📝 {card.notes}</div>
-                                    )}
-                                    <div className="text-sm text-gray-700 mt-1">
-                                        ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
-                                        🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
-                                    </div>
-
-                                    <div className="flex gap-2 mt-3">
-                                        <button
-                                            onClick={() => handleEditCard(card)}
-                                            className="text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                                        >
-                                            ✏️ Modifica
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteCard(card.id)}
-                                            className="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                                        >
-                                            🗑️ Elimina
-                                        </button>
-                                    </div>
-                                </div>
-                                {card.imageUrl && (
-                                    <div className="w-24 overflow-hidden rounded shadow-md cursor-pointer">
-                                        <img src={card.imageUrl} alt={card.name} className="rounded" />
-                                    </div>
-                                )}
-                            </li>
-                        );
-                    })}
-                </ul>
-            )}
-
-            {hoveredImage && (
-                <div
-                    className="fixed z-50 pointer-events-none"
-                    style={{
-                        top: mousePosition.y + 20,
-                        left: mousePosition.x + 20,
-                    }}
+            <div className="mb-6">
+                <label htmlFor="owner" className="block text-sm font-medium text-gray-700 mb-1">Seleziona utente:</label>
+                <select
+                    id="owner"
+                    value={selectedOwner}
+                    onChange={(e) => setSelectedOwner(e.target.value)}
+                    className="border rounded px-3 py-2 w-full"
                 >
-                    <img
-                        src={hoveredImage}
-                        alt="Anteprima"
-                        className="w-64 rounded-lg shadow-xl border border-gray-300"
-                    />
+                    {["Matteo", "Giacomo", "Marcello"].map(user => (
+                        <option key={user} value={user}>{user}</option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="mb-8">
+                <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-yellow-700 mb-2">🔒 Carte in prestito</h3>
+                    {inPrestito.length === 0 ? (
+                        <p className="text-gray-500">Nessuna carta in prestito.</p>
+                    ) : (
+                        <ul className="space-y-4">
+                            {inPrestito.map(card => (
+                                <li key={card.id} className="border p-3 rounded bg-yellow-50 flex justify-between items-start">
+                                    <div className="flex-1 pr-4">
+                                        <div className="font-bold">{card.name}</div>
+                                        <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                                            {card.loans.map((loan, i) => (
+                                                <li key={i}>
+                                                    📦 {loan.quantity} {loan.foil ? "Foil" : "Non Foil"} a {loan.to}
+                                                    {loan.note && (
+                                                        <span className="text-gray-500 italic ml-2">📝 {loan.note}</span>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    {card.imageUrl && (
+                                        <div
+                                            className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
+                                            onMouseEnter={() => setHoveredImage(card.imageUrl)}
+                                            onMouseLeave={() => setHoveredImage(null)}
+                                        >
+                                            <img src={card.imageUrl} alt={card.name} className="rounded" />
+                                        </div>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
-            )}
+
+                <div>
+                    <h3 className="text-xl font-semibold text-green-700 mb-2">✅ Carte disponibili</h3>
+                    {disponibili.length === 0 ? (
+                        <p className="text-gray-500">Nessuna carta disponibile.</p>
+                    ) : (
+                        <ul className="space-y-4">
+                            {disponibili.map(card => {
+                                const copies = Array.isArray(card.copies) ? card.copies : Array(card.copies).fill({ foil: false });
+                                const totalLoanedFoil = getTotalLoanedFoil(card.loans || [], true);
+                                const totalLoanedNonFoil = getTotalLoanedFoil(card.loans || [], false);
+                                const availableFoil = copies.filter(c => c.foil).length - totalLoanedFoil;
+                                const availableNonFoil = copies.filter(c => !c.foil).length - totalLoanedNonFoil;
+                                return (
+                                    <li key={card.id} className="border p-3 rounded bg-green-50 flex justify-between items-start">
+                                        <div className="flex-1 pr-4">
+                                            <div className="font-bold">{card.name}</div>
+                                            {card.notes && (
+                                                <div className="text-sm italic text-gray-500 mt-1">
+                                                    📝 {card.notes}
+                                                </div>
+                                            )}
+                                            <div className="text-sm text-gray-700 mt-1">
+                                                ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
+                                                🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
+                                            </div>
+
+                                            <div className="flex gap-2 mt-3">
+                                                <button
+                                                    onClick={() => handleEditCard(card)}
+                                                    className="text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                                                >
+                                                    ✏️ Modifica
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCard(card.id)}
+                                                    className="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                                >
+                                                    🗑️ Elimina
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {card.imageUrl && (
+                                            <div
+                                                className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
+                                                onMouseEnter={() => setHoveredImage(card.imageUrl)}
+                                                onMouseLeave={() => setHoveredImage(null)}
+                                            >
+                                                <img src={card.imageUrl} alt={card.name} className="rounded" />
+                                            </div>
+                                        )}
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+                </div>
+
+                {hoveredImage && (
+                    <div
+                        className="fixed z-50 pointer-events-none"
+                        style={{
+                            top: mousePosition.y + 20,
+                            left: mousePosition.x + 20,
+                        }}
+                    >
+                        <img
+                            src={hoveredImage}
+                            alt="Anteprima"
+                            className="w-64 rounded-lg shadow-xl border border-gray-300"
+                        />
+                    </div>
+                )}
+
+                <h3 className="text-xl font-bold text-blue-800 mb-4">{editingCardId ? "💾 Modifica carta" : "➕ Aggiungi nuova carta"}</h3>
+                <div className="space-y-3 relative">
+                    <div className="relative flex gap-4">
+                        <div className="flex-1">
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={async (e) => {
+                                    const val = e.target.value;
+                                    setName(val);
+                                    if (val.length > 1) {
+                                        try {
+                                            const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${val}`)}`);
+                                            const data = await res.json();
+                                            const results = data.data.map(card => ({
+                                                name: card.name,
+                                                image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
+                                            }));
+                                            setSuggestions(results.slice(0, 10));
+                                        } catch (error) {
+                                            console.error("Errore caricamento suggerimenti:", error);
+                                            setSuggestions([]);
+                                        }
+                                    } else {
+                                        setSuggestions([]);
+                                        setPreviewImage(null);
+                                    }
+                                }}
+                                placeholder="Nome carta"
+                                className="w-full border p-2 rounded"
+                            />
+                            {suggestions.length > 0 && (
+                                <ul className="absolute bg-white border w-full mt-1 z-10 max-h-60 overflow-auto rounded shadow">
+                                    {suggestions.map((s, idx) => (
+                                        <li
+                                            key={idx}
+                                            onMouseEnter={() => setPreviewImage(s.image)}
+                                            onMouseLeave={() => setPreviewImage(null)}
+                                            onClick={() => {
+                                                setName(s.name);
+                                                setSuggestions([]);
+                                                setPreviewImage(s.image);
+                                            }}
+                                            className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
+                                        >
+                                            {s.name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                        {previewImage && (
+                            <div className="hidden sm:block w-52 absolute right-[-220px] top-0 z-20">
+                                <img src={previewImage} alt="Preview" className="rounded-xl shadow-lg border border-gray-200" />
+                            </div>
+                        )}
+                    </div>
+
+                    <input
+                        type="text"
+                        value={edition}
+                        onChange={(e) => setEdition(e.target.value)}
+                        placeholder="Edizione"
+                        className="w-full border p-2 rounded"
+                    />
+
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block text-sm mb-1">✨ Copie Foil</label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={foilCopies}
+                                onChange={(e) => setFoilCopies(Number(e.target.value))}
+                                className="w-full border p-2 rounded"
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-sm mb-1">🃏 Copie Non Foil</label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={nonFoilCopies}
+                                onChange={(e) => setNonFoilCopies(Number(e.target.value))}
+                                className="w-full border p-2 rounded"
+                            />
+                        </div>
+                    </div>
+
+                    <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Note (facoltative)"
+                        className="w-full border p-2 rounded"
+                        rows="2"
+                    />
+
+                    <button
+                        onClick={handleAddOrUpdateCard}
+                        className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                        {editingCardId ? "💾 Salva modifica" : "➕ Aggiungi carta"}
+                    </button>
+
+                    {successMessage && (
+                        <div className="text-green-600 text-center mt-2">{successMessage}</div>
+                    )}
+                </div>
+            </div>
+
+            {/* Qui continua come prima: carte in prestito, carte disponibili, anteprima immagine */}
+
+            {/* Lista carte in prestito */}
+
+            {/* Lista carte disponibili */}
         </div>
+        
     );
 }
