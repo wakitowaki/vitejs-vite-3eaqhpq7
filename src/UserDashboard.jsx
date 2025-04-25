@@ -13,6 +13,8 @@ export default function UserDashboard() {
     const [nonFoilCopies, setNonFoilCopies] = useState(0);
     const [notes, setNotes] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    
+    const [suggestions, setSuggestions] = useState([]);
 
     useEffect(() => {
         fetchCards();
@@ -98,14 +100,45 @@ export default function UserDashboard() {
             {/* FORM Aggiungi nuova carta */}
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-blue-800 mb-4">➕ Aggiungi nuova carta</h3>
-                <div className="space-y-3">
+                <div className="space-y-3 relative">
                     <input
                         type="text"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setName(val);
+
+                            if (val.length > 1) {
+                                fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(val)}`)
+                                    .then(res => res.json())
+                                    .then(data => setSuggestions(data.data))
+                                    .catch(() => setSuggestions([]));
+                            } else {
+                                setSuggestions([]);
+                            }
+                        }}
                         placeholder="Nome carta"
                         className="w-full border p-2 rounded"
                     />
+
+                    {/* Lista suggerimenti */}
+                    {suggestions.length > 0 && (
+                        <ul className="absolute bg-white border w-full mt-1 z-10 max-h-48 overflow-auto rounded shadow">
+                            {suggestions.map((s, idx) => (
+                                <li
+                                    key={idx}
+                                    className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
+                                    onClick={() => {
+                                        setName(s);
+                                        setSuggestions([]);
+                                    }}
+                                >
+                                    {s}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
                     <input
                         type="text"
                         value={edition}
@@ -154,6 +187,7 @@ export default function UserDashboard() {
                     )}
                 </div>
             </div>
+
 
             {/* Carte in prestito */}
             <div className="mb-8">
