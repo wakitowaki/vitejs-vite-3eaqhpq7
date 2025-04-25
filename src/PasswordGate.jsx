@@ -4,7 +4,7 @@ export default function PasswordGate({ children }) {
     const [inputPassword, setInputPassword] = useState("");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    const correctPassword = "supersegreta"; // 🔥 Qui c'è la tua password
+    const correctPassword = "PeneGrosso22"; // 🔥 Qui c'è la tua password
 
     useEffect(() => {
         const storedAuth = localStorage.getItem("isAuthenticated");
