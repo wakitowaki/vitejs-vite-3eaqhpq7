@@ -296,6 +296,13 @@ export default function UserDashboard() {
                                         ))}
                                     </ul>
                                 </div>
+                                {(card.priceEur || card.priceEurFoil) && (
+                                    <div className="text-sm text-gray-700 mt-1">
+                                        💶 Prezzo stimato:{" "}
+                                        {card.priceEur ? `Normale €${parseFloat(card.priceEur).toFixed(2)}` : "-"}
+                                        {card.priceEurFoil ? ` / Foil €${parseFloat(card.priceEurFoil).toFixed(2)}` : ""}
+                                    </div>
+                                )}
                                 {card.imageUrl && (
                                     <div
                                         className="w-24 overflow-hidden rounded shadow-md cursor-pointer"
@@ -336,6 +343,14 @@ export default function UserDashboard() {
                                             ✨ Foil disponibili: {availableFoil >= 0 ? availableFoil : 0} <br />
                                             🃏 Non Foil disponibili: {availableNonFoil >= 0 ? availableNonFoil : 0}
                                         </div>
+                                        {(card.priceEur || card.priceEurFoil) && (
+                                            <div className="text-sm text-gray-700 mt-1">
+                                                💶 Prezzo stimato:{" "}
+                                                {card.priceEur ? `Normale €${parseFloat(card.priceEur).toFixed(2)}` : "-"}
+                                                {card.priceEurFoil ? ` / Foil €${parseFloat(card.priceEurFoil).toFixed(2)}` : ""}
+                                            </div>
+                                        )}
+
 
                                         <div className="flex gap-2 mt-3">
                                             <button
