@@ -105,7 +105,7 @@ export default function UserDashboard() {
                                             const data = await res.json();
                                             const results = data.data.map(card => ({
                                                 name: card.name,
-                                                image: card.image_uris?.normal || null,
+                                                image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
                                             }));
                                             setSuggestions(results.slice(0, 10));
                                         } catch (error) {
