@@ -207,22 +207,32 @@ export default function UserDashboard() {
                 ) : (
                     <ul className="space-y-4">
                         {inPrestito.map(card => (
-                            <li key={card.id} className="border p-3 rounded bg-yellow-50">
+                            <li key={card.id} className="border p-3 rounded bg-yellow-50 flex justify-between items-start">
+                                <div className="flex-1 pr-4">
+                                    <div className="font-bold">{card.name}</div>
+                                    <ul className="text-sm text-gray-700 mt-2 space-y-1">
+                                        {card.loans.map((loan, i) => (
+                                            <li key={i}>
+                                                📦 {loan.quantity} {loan.foil ? "Foil" : "Non Foil"} a {loan.to}
+                                                {loan.note && (
+                                                    <span className="text-gray-500 italic ml-2">📝 {loan.note}</span>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
                                 {card.imageUrl && (
-                                    <img src={card.imageUrl} alt={card.name} className="w-16 rounded shadow mb-2" />
+                                    <div className="w-20 overflow-hidden rounded shadow-md">
+                                        <img
+                                            src={card.imageUrl}
+                                            alt={card.name}
+                                            className="transition-transform duration-300 hover:scale-110 rounded"
+                                        />
+                                    </div>
                                 )}
-                                <div className="font-bold">{card.name}</div>
-                                <ul className="text-sm text-gray-700 mt-2 space-y-1">
-                                    {card.loans.map((loan, i) => (
-                                        <li key={i}>
-                                            📦 {loan.quantity} {loan.foil ? "Foil" : "Non Foil"} a {loan.to}
-                                            {loan.note && (
-                                                <span className="text-gray-500 italic ml-2">📝 {loan.note}</span>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
                             </li>
+
                         ))}
                     </ul>
                 )}
