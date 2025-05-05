@@ -22,6 +22,8 @@ export default function UserDashboard() {
     const [sortOption, setSortOption] = useState("nameAsc"); // default: Nome A-Z
     const [searchTerm, setSearchTerm] = useState(""); // testo di ricerca
     const [viewMode, setViewMode] = useState("list"); // "list" o "grid"
+    const [editionOptions, setEditionOptions] = useState([]);
+
 
 
 
@@ -233,12 +235,29 @@ export default function UserDashboard() {
                                             key={idx}
                                             onMouseEnter={() => setPreviewImage(s.image)}
                                             onMouseLeave={() => setPreviewImage(null)}
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 setName(s.name);
                                                 setSuggestions([]);
                                                 setPreviewImage(s.image);
-                                                setPriceEur(s.priceEur); // 👈 lo aggiungiamo subito
+                                                setPriceEur(s.priceEur);
                                                 setPriceEurFoil(s.priceEurFoil);
+
+                                                try {
+                                                    const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`!"${s.name}"`)}`);
+                                                    const data = await res.json();
+                                                    const editions = data.data.map(card => ({
+                                                        set_name: card.set_name,
+                                                        set: card.set,
+                                                        image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
+                                                        priceEur: card.prices?.eur || null,
+                                                        priceEurFoil: card.prices?.eur_foil || null,
+                                                    }));
+                                                    setEditionOptions(editions);
+                                                    setEdition(""); // reset edizione selezionata
+                                                } catch (error) {
+                                                    console.error("Errore caricamento edizioni:", error);
+                                                    setEditionOptions([]);
+                                                }
                                             }}
                                             className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
                                         >
@@ -255,13 +274,28 @@ export default function UserDashboard() {
                         )}
                     </div>
 
-                    <input
-                        type="text"
+                    <select
                         value={edition}
-                        onChange={(e) => setEdition(e.target.value)}
-                        placeholder="Edizione"
-                        className="w-full border p-2 rounded"
-                    />
+                        onChange={(e) => {
+                            const selectedSet = editionOptions.find(opt => opt.set === e.target.value);
+                            setEdition(e.target.value);
+                            if (selectedSet) {
+                                setPreviewImage(selectedSet.image);
+                                setPriceEur(selectedSet.priceEur);
+                                setPriceEurFoil(selectedSet.priceEurFoil);
+                            }
+                        }}
+                        disabled={editionOptions.length === 0}
+                        className="w-full border p-2 rounded bg-white"
+                    >
+                        <option value="">Seleziona un'edizione</option>
+                        {editionOptions.map((opt, idx) => (
+                            <option key={idx} value={opt.set}>
+                                {opt.set_name} ({opt.set.toUpperCase()})
+                            </option>
+                        ))}
+                    </select>
+
 
                     <div className="flex gap-4">
                         <div className="flex-1">
