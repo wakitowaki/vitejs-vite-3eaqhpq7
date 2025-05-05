@@ -381,6 +381,9 @@ export default function UserDashboard() {
                             <li key={card.id} className="border p-3 rounded bg-yellow-50 flex justify-between items-start">
                                 <div className="flex-1 pr-4">
                                     <div className="font-bold">{card.name}</div>
+                                    <div className="text-xs text-gray-500 italic">
+                                        {card.edition ? `Edizione: ${card.edition.toUpperCase()}` : "Edizione non specificata"}
+                                    </div>
                                     <ul className="text-sm text-gray-700 mt-2 space-y-1">
                                         {card.loans.map((loan, i) => (
                                             <li key={i}>
@@ -480,6 +483,9 @@ export default function UserDashboard() {
                                         >
                                             <div className={`flex-1 ${viewMode === "grid" ? "" : "pr-4"}`}>
                                                 <div className="font-bold">{card.name}</div>
+                                                <div className="text-xs text-gray-500 italic">
+                                                    {card.edition ? `Edizione: ${card.edition.toUpperCase()}` : "Edizione non specificata"}
+                                                </div>
                                                 {card.notes && (
                                                     <div className="text-sm italic text-gray-500 mt-1">📝 {card.notes}</div>
                                                 )}
