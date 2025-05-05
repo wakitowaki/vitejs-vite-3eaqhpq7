@@ -142,7 +142,7 @@ export default function CardList() {
             </div>
 
             <div className="mb-6 flex flex-wrap gap-2">
-                {["Tutti", "Matteo", "Giacomo", "Marcello"].map(owner => (
+                {["Tutti", "Matteo", "Giacomo", "Marcello", "Umberto", "DanMarc"].map(owner => (
                     <button
                         key={owner}
                         onClick={() => setFilter(owner)}
@@ -236,7 +236,8 @@ export default function CardList() {
                                                 className="w-full border p-2 rounded"
                                             />
                                             <div className="flex gap-2">
-                                                {["Matteo", "Giacomo", "Marcello"].map(user => (
+                                                {["Matteo", "Giacomo", "Marcello", "Umberto", "DanMarc"]
+                                                    .map(user => (
                                                     <button
                                                         key={user}
                                                         type="button"
