@@ -1,17 +1,19 @@
 import './App.css';
 import CardList from './CardList';
 import PasswordGate from './PasswordGate';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import UserDashboard from './UserDashboard';
+
 
 function App() {
     const [view, setView] = useState("collection");
+    const dashboardRef = useRef();
 
     return (
         <PasswordGate>
             <div className="min-h-screen text-gray-800 font-sans px-4 py-8">
                 <div className="max-w-3xl mx-auto">
-                <div className="flex justify-between items-center mb-6">
+                    <div className="flex justify-between items-center mb-6">
                         <h1 className="text-4xl font-extrabold text-blue-800">📚 Collezione Carte</h1>
                         <div className="space-x-2">
                             <button
@@ -26,13 +28,22 @@ function App() {
                             >
                                 Dashboard
                             </button>
+                            {view === "dashboard" && (
+                                <button
+                                    onClick={() => dashboardRef.current?.downloadCSV?.()}
+                                    className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+                                >
+                                    ⬇️ Esporta CSV
+                                </button>
+                            )}
                         </div>
                     </div>
+
 
                     {view === "collection" ? (
                         <CardList />
                     ) : (
-                        <UserDashboard />
+                        <UserDashboard ref={dashboardRef} />
                     )}
                 </div>
             </div>

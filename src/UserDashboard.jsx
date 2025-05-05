@@ -1,8 +1,9 @@
 ﻿import { useEffect, useState } from "react";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "./firebase";
+import { forwardRef, useImperativeHandle } from "react";
 
-export default function UserDashboard() {
+const UserDashboard = forwardRef((props, ref) => {
     const [cards, setCards] = useState([]);
     const [selectedOwner, setSelectedOwner] = useState("Matteo");
     const [name, setName] = useState("");
@@ -178,6 +179,40 @@ export default function UserDashboard() {
     const handleMouseMove = (e) => {
         setMousePosition({ x: e.clientX, y: e.clientY });
     };
+
+    const handleDownloadCSV = () => {
+        const header = ["Nome", "Edizione", "Foil", "Non Foil", "Note", "Prezzo EUR", "Prezzo EUR Foil"];
+        const rows = ownerCards.map(card => {
+            const foilCount = (card.copies || []).filter(c => c.foil).length;
+            const nonFoilCount = (card.copies || []).filter(c => !c.foil).length;
+            return [
+                `"${card.name}"`,
+                `"${card.edition || ""}"`,
+                foilCount,
+                nonFoilCount,
+                `"${card.notes?.replace(/"/g, '""') || ""}"`,
+                card.priceEur || "",
+                card.priceEurFoil || ""
+            ];
+        });
+
+        const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `collezione_${selectedOwner}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    useImperativeHandle(ref, () => ({
+        downloadCSV: handleDownloadCSV
+    }));
+
+
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md" onMouseMove={handleMouseMove}>
@@ -551,4 +586,7 @@ export default function UserDashboard() {
         </div>
         
     );
-}
+
+});
+
+export default UserDashboard;
