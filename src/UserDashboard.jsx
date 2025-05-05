@@ -214,6 +214,7 @@ export default function UserDashboard() {
                                                 image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
                                                 priceEur: card.prices?.eur || null,
                                                 priceEurFoil: card.prices?.eur_foil || null,
+                                                prints_search_uri: card.prints_search_uri // 👈 NECESSARIO per le edizioni
                                             }));
                                             setSuggestions(results.slice(0, 10));
                                         } catch (error) {
@@ -243,7 +244,8 @@ export default function UserDashboard() {
                                                 setPriceEurFoil(s.priceEurFoil);
 
                                                 try {
-                                                    const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`!"${s.name}"`)}`);
+                                                    // Carica tutte le edizioni tramite prints_search_uri
+                                                    const res = await fetch(s.prints_search_uri);
                                                     const data = await res.json();
                                                     const editions = data.data.map(card => ({
                                                         set_name: card.set_name,
