@@ -281,8 +281,8 @@ const UserDashboard = forwardRef((props, ref) => {
                                             onMouseEnter={() => setPreviewImage(s.image)}
                                             onMouseLeave={() => setPreviewImage(null)}
                                             onClick={async () => {
-                                                setName(s.name);
                                                 setSuggestions([]); // chiude la tendina
+                                                setName(s.name);
                                                 setPreviewImage(s.image);
                                                 setPriceEur(s.priceEur);
                                                 setPriceEurFoil(s.priceEurFoil);
