@@ -104,6 +104,7 @@ const UserDashboard = forwardRef((props, ref) => {
         setOriginalCardData(null);
         setPriceEur(null);
         setPriceEurFoil(null);
+        setSelectedEditionId(""); // 🔄 Reset della tendina edizione
         fetchCards();
 
         setTimeout(() => setSuccessMessage(""), 3000);
