@@ -143,7 +143,9 @@ function App() {
 
 
 
-                    <CardList style={{ display: view === "collection" ? "block" : "none" }} />
+                    <div style={{ display: view === "collection" ? "block" : "none" }}>
+                        <CardList />
+                    </div>
                     <div style={{ display: view === "dashboard" ? "block" : "none" }}>
                         <UserDashboard ref={dashboardRef} />
                     </div>
