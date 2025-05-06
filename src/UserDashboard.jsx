@@ -56,7 +56,7 @@ const UserDashboard = forwardRef((props, ref) => {
                 setSuggestions([]);
                 setPreviewImage(null);
             }
-        }, 300); // debounce: aspetta 300ms
+        }, 150); // debounce: aspetta 300ms
 
         return () => clearTimeout(delayDebounce);
     }, [name]);
