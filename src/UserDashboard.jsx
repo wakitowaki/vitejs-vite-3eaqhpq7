@@ -35,11 +35,8 @@ const UserDashboard = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
-        if (suppressFetch) return;
-
-        useEffect(() => {
-            const delayDebounce = setTimeout(async () => {
-                if (name.trim().length > 1 && suggestions.length === 0) {
+        const delayDebounce = setTimeout(async () => {
+            if (name.trim().length > 1) {
                 try {
                     const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${name}`)}`);
                     const data = await res.json();
@@ -62,7 +59,7 @@ const UserDashboard = forwardRef((props, ref) => {
         }, 150);
 
         return () => clearTimeout(delayDebounce);
-    }, [name, suppressFetch]);
+    }, [name]);
 
 
 
