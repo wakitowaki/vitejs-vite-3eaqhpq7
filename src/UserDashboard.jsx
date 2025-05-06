@@ -208,42 +208,6 @@ const UserDashboard = forwardRef((props, ref) => {
         document.body.removeChild(link);
     };
 
-    const parseDeckText = (text) => {
-        return text
-            .split("\n")
-            .map(line => line.trim())
-            .filter(line => line)
-            .map(line => {
-                const match = line.match(/^(\d+)\s+(.+)$/);
-                if (!match) return null;
-                return {
-                    quantity: parseInt(match[1]),
-                    name: match[2]
-                };
-            })
-            .filter(Boolean);
-    };
-
-
-    const handleAnalyzeDeck = () => {
-        const parsed = parseDeckText(deckText);
-        const collection = dashboardRef.current?.getCollection?.();
-
-        if (!parsed.length) {
-            alert("Lista mazzo vuota o non valida.");
-            return;
-        }
-
-        if (!collection || !Array.isArray(collection)) {
-            alert("⚠️ Collezione non disponibile (sei nella vista Prestiti?)");
-            return;
-        }
-
-        console.log("Deck:", parsed);
-        console.log("Collezione:", collection);
-    };
-
-
     useImperativeHandle(ref, () => ({
         downloadCSV: handleDownloadCSV,
         getCollection: () => cards
