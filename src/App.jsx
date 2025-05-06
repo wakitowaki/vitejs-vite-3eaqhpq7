@@ -110,8 +110,9 @@ function App() {
             <div className="min-h-screen text-gray-800 font-sans px-4 py-8 relative z-10">
             <BouncingPigs />
                 <div className="max-w-3xl mx-auto">
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-4xl font-extrabold text-blue-800">📚 Collezione Carte</h1>
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+
+                    <h1 className="text-4xl font-extrabold text-blue-800">📚 Collezione Carte</h1>
                         <div className="space-x-2">
                             <button
                                 onClick={() => setView("collection")}
