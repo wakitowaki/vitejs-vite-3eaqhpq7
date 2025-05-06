@@ -71,6 +71,38 @@ function App() {
         setDeckResults(results);
     };
 
+    const exportDeckResultsToTXT = () => {
+        if (!deckResults.length) return;
+
+        let output = "Risultato DeckChecker\n\n";
+
+        deckResults.forEach(res => {
+            output += `${res.quantity}x ${res.name}\n`;
+
+            if (res.available >= res.quantity) {
+                output += `✔ Disponibili: ${res.available} — ${res.owners.join(", ")}\n`;
+            } else if (res.available > 0) {
+                output += `⚠ Parziali: ${res.available} — ${res.owners.join(", ")}\n`;
+            } else {
+                output += `✘ Non disponibili\n`;
+            }
+
+            output += "\n";
+        });
+
+        const blob = new Blob([output], { type: "text/plain;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "deckcheck.txt");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+
+
     return (
         <PasswordGate>
             <div className="min-h-screen text-gray-800 font-sans px-4 py-8">
@@ -157,10 +189,10 @@ function App() {
                                     ))}
                                 </ul>
                                 <button
-                                    onClick={exportDeckResultsToPDF}
-                                    className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                    onClick={exportDeckResultsToTXT}
+                                    className="mt-4 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
                                 >
-                                    ⬇️ Esporta PDF
+                                    ⬇️ Esporta TXT
                                 </button>
                             </div>
                         )}
