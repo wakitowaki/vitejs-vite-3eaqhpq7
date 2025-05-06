@@ -2,6 +2,7 @@
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "./firebase";
 import { forwardRef, useImperativeHandle } from "react";
+import { useRef } from "react"; // assicurati sia incluso in alto
 
 
 const UserDashboard = forwardRef((props, ref) => {
@@ -27,6 +28,7 @@ const UserDashboard = forwardRef((props, ref) => {
     const [editionOptions, setEditionOptions] = useState([]);
     const [selectedEditionId, setSelectedEditionId] = useState("");
     const [lastManualSelectTime, setLastManualSelectTime] = useState(0);
+    const nameInputRef = useRef(null);
 
 
 
@@ -41,14 +43,21 @@ const UserDashboard = forwardRef((props, ref) => {
         const now = Date.now();
         const elapsed = now - lastManualSelectTime;
 
-        // Se è passato meno di 500ms da una selezione manuale, salta
         if (elapsed < 500) return;
 
         const delayDebounce = setTimeout(async () => {
-            if (name.trim().length > 1) {
+            const currentName = nameInputRef.current?.value.trim() || "";
+
+            if (currentName.length > 1) {
                 try {
-                    const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${name}`)}`);
+                    const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${currentName}`)}`);
                     const data = await res.json();
+
+                    if (!data.data || !Array.isArray(data.data)) {
+                        setSuggestions([]);
+                        return;
+                    }
+
                     const results = data.data.map(card => ({
                         name: card.name,
                         image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
@@ -56,6 +65,7 @@ const UserDashboard = forwardRef((props, ref) => {
                         priceEurFoil: card.prices?.eur_foil || null,
                         prints_search_uri: card.prints_search_uri
                     }));
+
                     setSuggestions(results.slice(0, 10));
                 } catch (error) {
                     console.error("Errore caricamento suggerimenti:", error);
@@ -70,7 +80,8 @@ const UserDashboard = forwardRef((props, ref) => {
         return () => clearTimeout(delayDebounce);
     }, [name, lastManualSelectTime]);
 
-    
+
+
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
         const allCards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -275,12 +286,14 @@ const UserDashboard = forwardRef((props, ref) => {
                     <div className="relative flex gap-4">
                         <div className="flex-1">
                             <input
+                                ref={nameInputRef}
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Nome carta"
                                 className="w-full border p-2 rounded"
                             />
+
                             {suggestions.length > 0 && (
                                 <ul className="absolute bg-white border w-full mt-1 z-10 max-h-60 overflow-auto rounded shadow">
                                     {suggestions.map((s, idx) => (
