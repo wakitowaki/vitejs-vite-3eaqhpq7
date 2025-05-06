@@ -318,7 +318,10 @@ const UserDashboard = forwardRef((props, ref) => {
                             const selectedSet = editionOptions.find(opt => opt.set === e.target.value);
                             setEdition(e.target.value);
                             if (selectedSet) {
-                                setPreviewImage(selectedSet.image);
+                                setPreviewImage(null); // reset temporaneo per forzare refresh
+                                setTimeout(() => {
+                                    setPreviewImage(selectedSet.image);
+                                }, 10);
                                 setPriceEur(selectedSet.priceEur);
                                 setPriceEurFoil(selectedSet.priceEurFoil);
                             }
