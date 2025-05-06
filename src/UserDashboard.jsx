@@ -228,17 +228,21 @@ const UserDashboard = forwardRef((props, ref) => {
     const handleAnalyzeDeck = () => {
         const parsed = parseDeckText(deckText);
         const collection = dashboardRef.current?.getCollection?.();
-        if (!collection) {
-            alert("Collezione non disponibile");
+
+        if (!parsed.length) {
+            alert("Lista mazzo vuota o non valida.");
             return;
         }
 
-        // Per ora solo log
+        if (!collection || !Array.isArray(collection)) {
+            alert("⚠️ Collezione non disponibile (sei nella vista Prestiti?)");
+            return;
+        }
+
         console.log("Deck:", parsed);
         console.log("Collezione:", collection);
-
-        // Qui andrà il confronto
     };
+
 
     useImperativeHandle(ref, () => ({
         downloadCSV: handleDownloadCSV,

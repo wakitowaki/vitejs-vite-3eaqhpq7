@@ -52,11 +52,9 @@ function App() {
 
 
 
-                    {view === "collection" ? (
-                        <CardList />
-                    ) : (
-                        <UserDashboard ref={dashboardRef} />
-                    )}
+                    <CardList style={{ display: view === "collection" ? "block" : "none" }} />
+                    <UserDashboard ref={dashboardRef} style={{ display: view === "dashboard" ? "block" : "none" }} />
+
                 </div>
             </div>
             {showDeckChecker && (
