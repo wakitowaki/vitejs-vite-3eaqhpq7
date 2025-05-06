@@ -2,8 +2,6 @@
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "./firebase";
 import { forwardRef, useImperativeHandle } from "react";
-import { useRef } from "react";
-const latestQuery = useRef("");
 
 
 const UserDashboard = forwardRef((props, ref) => {
@@ -40,18 +38,17 @@ const UserDashboard = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
+        const now = Date.now();
+        const elapsed = now - lastManualSelectTime;
+
+        // Se è passato meno di 500ms da una selezione manuale, salta
+        if (elapsed < 500) return;
+
         const delayDebounce = setTimeout(async () => {
-            const trimmedName = name.trim();
-            if (trimmedName.length > 1) {
-                latestQuery.current = trimmedName;
-
+            if (name.trim().length > 1) {
                 try {
-                    const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${trimmedName}`)}`);
+                    const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${name}`)}`);
                     const data = await res.json();
-
-                    // ⚠️ Verifica che il nome non sia cambiato nel frattempo
-                    if (latestQuery.current !== trimmedName) return;
-
                     const results = data.data.map(card => ({
                         name: card.name,
                         image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
@@ -59,7 +56,6 @@ const UserDashboard = forwardRef((props, ref) => {
                         priceEurFoil: card.prices?.eur_foil || null,
                         prints_search_uri: card.prints_search_uri
                     }));
-
                     setSuggestions(results.slice(0, 10));
                 } catch (error) {
                     console.error("Errore caricamento suggerimenti:", error);
@@ -72,10 +68,9 @@ const UserDashboard = forwardRef((props, ref) => {
         }, 150);
 
         return () => clearTimeout(delayDebounce);
-    }, [name]);
+    }, [name, lastManualSelectTime]);
 
-
-
+    
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
         const allCards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
