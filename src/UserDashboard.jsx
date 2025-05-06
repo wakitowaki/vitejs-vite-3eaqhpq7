@@ -25,7 +25,6 @@ const UserDashboard = forwardRef((props, ref) => {
     const [viewMode, setViewMode] = useState("list"); // "list" o "grid"
     const [editionOptions, setEditionOptions] = useState([]);
     const [selectedEditionId, setSelectedEditionId] = useState("");
-    const [suppressFetch, setSuppressFetch] = useState(false);
 
 
 
@@ -38,8 +37,9 @@ const UserDashboard = forwardRef((props, ref) => {
     useEffect(() => {
         if (suppressFetch) return;
 
-        const delayDebounce = setTimeout(async () => {
-            if (name.trim().length > 1) {
+        useEffect(() => {
+            const delayDebounce = setTimeout(async () => {
+                if (name.trim().length > 1 && suggestions.length === 0) {
                 try {
                     const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${name}`)}`);
                     const data = await res.json();
@@ -284,18 +284,17 @@ const UserDashboard = forwardRef((props, ref) => {
                                             onMouseEnter={() => setPreviewImage(s.image)}
                                             onMouseLeave={() => setPreviewImage(null)}
                                             onClick={async () => {
-                                                setSuppressFetch(true); // blocca la fetch automatica
                                                 setName(s.name);
+                                                setSuggestions([]); // chiude la tendina
                                                 setPreviewImage(s.image);
                                                 setPriceEur(s.priceEur);
                                                 setPriceEurFoil(s.priceEurFoil);
 
                                                 try {
-                                                    // Carica tutte le edizioni tramite prints_search_uri
                                                     const res = await fetch(s.prints_search_uri);
                                                     const data = await res.json();
                                                     const editions = data.data.map(card => ({
-                                                        id: card.id, // 👈 identificatore unico della stampa
+                                                        id: card.id,
                                                         name: card.name,
                                                         set_name: card.set_name,
                                                         set: card.set,
@@ -311,10 +310,6 @@ const UserDashboard = forwardRef((props, ref) => {
                                                     console.error("Errore caricamento edizioni:", error);
                                                     setEditionOptions([]);
                                                 }
-                                                setTimeout(() => {
-                                                    setSuggestions([]);
-                                                    setSuppressFetch(false); // riattiva la fetch dopo che ha finito tutto
-                                                }, 200);
                                             }}
                                             className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
                                         >
