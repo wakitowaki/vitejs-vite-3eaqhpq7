@@ -25,6 +25,7 @@ const UserDashboard = forwardRef((props, ref) => {
     const [viewMode, setViewMode] = useState("list"); // "list" o "grid"
     const [editionOptions, setEditionOptions] = useState([]);
     const [selectedEditionId, setSelectedEditionId] = useState("");
+    const [suppressFetch, setSuppressFetch] = useState(false);
 
 
 
@@ -35,6 +36,8 @@ const UserDashboard = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
+        if (suppressFetch) return;
+
         const delayDebounce = setTimeout(async () => {
             if (name.trim().length > 1) {
                 try {
@@ -56,10 +59,11 @@ const UserDashboard = forwardRef((props, ref) => {
                 setSuggestions([]);
                 setPreviewImage(null);
             }
-        }, 150); // debounce: aspetta 300ms
+        }, 150);
 
         return () => clearTimeout(delayDebounce);
-    }, [name]);
+    }, [name, suppressFetch]);
+
 
 
     const fetchCards = async () => {
@@ -280,6 +284,7 @@ const UserDashboard = forwardRef((props, ref) => {
                                             onMouseEnter={() => setPreviewImage(s.image)}
                                             onMouseLeave={() => setPreviewImage(null)}
                                             onClick={async () => {
+                                                setSuppressFetch(true); // blocca la fetch automatica
                                                 setName(s.name);
                                                 setPreviewImage(s.image);
                                                 setPriceEur(s.priceEur);
@@ -306,7 +311,10 @@ const UserDashboard = forwardRef((props, ref) => {
                                                     console.error("Errore caricamento edizioni:", error);
                                                     setEditionOptions([]);
                                                 }
-                                                setTimeout(() => setSuggestions([]), 100);
+                                                setTimeout(() => {
+                                                    setSuggestions([]);
+                                                    setSuppressFetch(false); // riattiva la fetch dopo che ha finito tutto
+                                                }, 200);
                                             }}
                                             className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
                                         >
