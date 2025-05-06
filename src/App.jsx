@@ -9,6 +9,8 @@ function App() {
     const [view, setView] = useState("collection");
     const dashboardRef = useRef();
     const [showDeckChecker, setShowDeckChecker] = useState(false);
+    const [deckText, setDeckText] = useState("");
+
 
     return (
         <PasswordGate>
@@ -71,10 +73,12 @@ function App() {
                             rows="10"
                             className="w-full border p-2 rounded font-mono text-sm"
                             placeholder="Incolla qui la lista del mazzo..."
+                            value={deckText}
+                            onChange={(e) => setDeckText(e.target.value)}
                         ></textarea>
                         <button
                             className="mt-4 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-                            onClick={() => alert("Analisi mazzo non ancora implementata")}
+                            onClick={handleAnalyzeDeck}
                         >
                             Analizza Mazzo
                         </button>
