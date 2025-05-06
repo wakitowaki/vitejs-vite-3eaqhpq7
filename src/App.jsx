@@ -113,8 +113,8 @@ function App() {
                     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
 
                     <h1 className="text-4xl font-extrabold text-blue-800">📚 Collezione Carte</h1>
-                        <div className="space-x-2">
-                            <button
+                        <div className="flex flex-wrap gap-2">
+                        <button
                                 onClick={() => setView("collection")}
                                 className={`px-4 py-2 rounded ${view === "collection" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
                             >
