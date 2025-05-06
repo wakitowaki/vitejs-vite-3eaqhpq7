@@ -276,7 +276,7 @@ const UserDashboard = forwardRef((props, ref) => {
                                 placeholder="Nome carta"
                                 className="w-full border p-2 rounded"
                             />
-                            {suggestions.length > 0 && (
+                            {!suppressFetch && suggestions.length > 0 && (
                                 <ul className="absolute bg-white border w-full mt-1 z-10 max-h-60 overflow-auto rounded shadow">
                                     {suggestions.map((s, idx) => (
                                         <li
