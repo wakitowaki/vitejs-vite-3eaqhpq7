@@ -10,6 +10,8 @@ function App() {
     const dashboardRef = useRef();
     const [showDeckChecker, setShowDeckChecker] = useState(false);
     const [deckText, setDeckText] = useState("");
+    const [deckResults, setDeckResults] = useState([]);
+
 
     const parseDeckText = (text) => {
         return text
@@ -41,11 +43,33 @@ function App() {
             return;
         }
 
-        console.log("Deck:", parsed);
-        console.log("Collezione:", collection);
+        const results = parsed.map(deckEntry => {
+            const matchingCards = collection.filter(card => card.name.toLowerCase() === deckEntry.name.toLowerCase());
+            let totalAvailable = 0;
+            let owners = [];
+
+            matchingCards.forEach(card => {
+                const foilCount = (card.copies || []).filter(c => c.foil).length;
+                const nonFoilCount = (card.copies || []).filter(c => !c.foil).length;
+                const totalCopies = foilCount + nonFoilCount;
+                const totalLoaned = (card.loans || []).reduce((sum, loan) => sum + (loan.quantity || 0), 0);
+                const available = totalCopies - totalLoaned;
+
+                if (available > 0) {
+                    totalAvailable += available;
+                    owners.push(`${card.owner} (${available})`);
+                }
+            });
+
+            return {
+                ...deckEntry,
+                available: totalAvailable,
+                owners
+            };
+        });
+
+        setDeckResults(results);
     };
-
-
 
     return (
         <PasswordGate>
@@ -115,6 +139,26 @@ function App() {
                         >
                             Analizza Mazzo
                         </button>
+                        {deckResults.length > 0 && (
+                            <div className="mt-6">
+                                <h3 className="text-lg font-semibold mb-2">📋 Risultato Analisi</h3>
+                                <ul className="space-y-2 text-sm max-h-60 overflow-y-auto pr-2">
+                                    {deckResults.map((res, idx) => (
+                                        <li key={idx} className="border-b pb-2">
+                                            <div className="font-semibold">{res.quantity}x {res.name}</div>
+                                            {res.available >= res.quantity ? (
+                                                <div className="text-green-700">✅ Disponibili: {res.available} — {res.owners.join(", ")}</div>
+                                            ) : res.available > 0 ? (
+                                                <div className="text-yellow-700">⚠️ Parziale: {res.available} disponibili — {res.owners.join(", ")}</div>
+                                            ) : (
+                                                <div className="text-red-700">❌ Non disponibile</div>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
                     </div>
                 </div>
             )}
