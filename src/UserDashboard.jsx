@@ -24,6 +24,7 @@ const UserDashboard = forwardRef((props, ref) => {
     const [searchTerm, setSearchTerm] = useState(""); // testo di ricerca
     const [viewMode, setViewMode] = useState("list"); // "list" o "grid"
     const [editionOptions, setEditionOptions] = useState([]);
+    const [selectedEditionId, setSelectedEditionId] = useState("");
 
 
 
@@ -284,12 +285,16 @@ const UserDashboard = forwardRef((props, ref) => {
                                                     const res = await fetch(s.prints_search_uri);
                                                     const data = await res.json();
                                                     const editions = data.data.map(card => ({
+                                                        id: card.id, // 👈 identificatore unico della stampa
+                                                        name: card.name,
                                                         set_name: card.set_name,
                                                         set: card.set,
+                                                        collector_number: card.collector_number,
                                                         image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
-                                                        priceEur: card.prices?.eur || null,
-                                                        priceEurFoil: card.prices?.eur_foil || null,
+                                                        priceEur: card.prices?.eur ?? null,
+                                                        priceEurFoil: card.prices?.eur_foil ?? null,
                                                     }));
+
                                                     setEditionOptions(editions);
                                                     setEdition(""); // reset edizione selezionata
                                                 } catch (error) {
@@ -313,29 +318,31 @@ const UserDashboard = forwardRef((props, ref) => {
                     </div>
 
                     <select
-                        value={edition}
+                        value={selectedEditionId}
                         onChange={(e) => {
-                            const selectedSet = editionOptions.find(opt => opt.set === e.target.value);
-                            setEdition(e.target.value);
-                            if (selectedSet) {
-                                setPreviewImage(null); // reset temporaneo per forzare refresh
+                            const selected = editionOptions.find(opt => opt.id === e.target.value);
+                            setSelectedEditionId(e.target.value);
+                            if (selected) {
+                                setEdition(selected.set); // ancora utile per salvarlo su Firestore
+                                setPreviewImage(null); // reset per forzare immagine
                                 setTimeout(() => {
-                                    setPreviewImage(selectedSet.image);
+                                    setPreviewImage(selected.image);
                                 }, 10);
-                                setPriceEur(selectedSet.priceEur);
-                                setPriceEurFoil(selectedSet.priceEurFoil);
+                                setPriceEur(selected.priceEur);
+                                setPriceEurFoil(selected.priceEurFoil);
                             }
                         }}
                         disabled={editionOptions.length === 0}
                         className="w-full border p-2 rounded bg-white"
                     >
-                        <option value="">Seleziona un'edizione</option>
-                        {editionOptions.map((opt, idx) => (
-                            <option key={idx} value={opt.set}>
-                                {opt.set_name} ({opt.set.toUpperCase()})
+                        <option value="">Seleziona una stampa</option>
+                        {editionOptions.map((opt) => (
+                            <option key={opt.id} value={opt.id}>
+                                {opt.set_name} - #{opt.collector_number}
                             </option>
                         ))}
                     </select>
+
 
 
                     <div className="flex gap-4">
