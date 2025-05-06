@@ -281,7 +281,6 @@ const UserDashboard = forwardRef((props, ref) => {
                                             onMouseLeave={() => setPreviewImage(null)}
                                             onClick={async () => {
                                                 setName(s.name);
-                                                setSuggestions([]);
                                                 setPreviewImage(s.image);
                                                 setPriceEur(s.priceEur);
                                                 setPriceEurFoil(s.priceEurFoil);
@@ -307,6 +306,7 @@ const UserDashboard = forwardRef((props, ref) => {
                                                     console.error("Errore caricamento edizioni:", error);
                                                     setEditionOptions([]);
                                                 }
+                                                setTimeout(() => setSuggestions([]), 100);
                                             }}
                                             className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
                                         >
