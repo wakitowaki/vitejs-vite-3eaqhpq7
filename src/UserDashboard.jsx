@@ -25,7 +25,7 @@ const UserDashboard = forwardRef((props, ref) => {
     const [viewMode, setViewMode] = useState("list"); // "list" o "grid"
     const [editionOptions, setEditionOptions] = useState([]);
     const [selectedEditionId, setSelectedEditionId] = useState("");
-    const [manualSelection, setManualSelection] = useState(false);
+    const [lastManualSelectTime, setLastManualSelectTime] = useState(0);
 
 
 
@@ -37,10 +37,11 @@ const UserDashboard = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
-        if (manualSelection) {
-            setManualSelection(false); // reset per prossime digitazioni
-            return;
-        }
+        const now = Date.now();
+        const elapsed = now - lastManualSelectTime;
+
+        // Se è passato meno di 500ms da una selezione manuale, salta
+        if (elapsed < 500) return;
 
         const delayDebounce = setTimeout(async () => {
             if (name.trim().length > 1) {
@@ -66,11 +67,9 @@ const UserDashboard = forwardRef((props, ref) => {
         }, 150);
 
         return () => clearTimeout(delayDebounce);
-    }, [name, manualSelection]);
+    }, [name, lastManualSelectTime]);
 
-
-
-
+    
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
         const allCards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -289,8 +288,8 @@ const UserDashboard = forwardRef((props, ref) => {
                                             onMouseEnter={() => setPreviewImage(s.image)}
                                             onMouseLeave={() => setPreviewImage(null)}
                                             onClick={async () => {
-                                                setManualSelection(true); // blocca il debounce
-                                                setSuggestions([]); // chiude la tendina
+                                                setLastManualSelectTime(Date.now()); // blocca il debounce per 500ms
+                                                setSuggestions([]);
                                                 setName(s.name);
                                                 setPreviewImage(s.image);
                                                 setPriceEur(s.priceEur);
@@ -311,12 +310,13 @@ const UserDashboard = forwardRef((props, ref) => {
                                                     }));
 
                                                     setEditionOptions(editions);
-                                                    setEdition(""); // reset edizione selezionata
+                                                    setEdition("");
                                                 } catch (error) {
                                                     console.error("Errore caricamento edizioni:", error);
                                                     setEditionOptions([]);
                                                 }
                                             }}
+
                                             className="p-2 hover:bg-blue-100 cursor-pointer text-sm"
                                         >
                                             {s.name}
