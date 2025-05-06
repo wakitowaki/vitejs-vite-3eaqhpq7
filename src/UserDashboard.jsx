@@ -25,6 +25,8 @@ const UserDashboard = forwardRef((props, ref) => {
     const [viewMode, setViewMode] = useState("list"); // "list" o "grid"
     const [editionOptions, setEditionOptions] = useState([]);
     const [selectedEditionId, setSelectedEditionId] = useState("");
+    const [manualSelection, setManualSelection] = useState(false);
+
 
 
 
@@ -35,6 +37,11 @@ const UserDashboard = forwardRef((props, ref) => {
     }, []);
 
     useEffect(() => {
+        if (manualSelection) {
+            setManualSelection(false); // reset per prossime digitazioni
+            return;
+        }
+
         const delayDebounce = setTimeout(async () => {
             if (name.trim().length > 1) {
                 try {
@@ -59,7 +66,8 @@ const UserDashboard = forwardRef((props, ref) => {
         }, 150);
 
         return () => clearTimeout(delayDebounce);
-    }, [name]);
+    }, [name, manualSelection]);
+
 
 
 
@@ -281,6 +289,7 @@ const UserDashboard = forwardRef((props, ref) => {
                                             onMouseEnter={() => setPreviewImage(s.image)}
                                             onMouseLeave={() => setPreviewImage(null)}
                                             onClick={async () => {
+                                                setManualSelection(true); // blocca il debounce
                                                 setSuggestions([]); // chiude la tendina
                                                 setName(s.name);
                                                 setPreviewImage(s.image);
