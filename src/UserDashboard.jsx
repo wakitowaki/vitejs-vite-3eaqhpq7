@@ -29,6 +29,8 @@ const UserDashboard = forwardRef((props, ref) => {
     const [selectedEditionId, setSelectedEditionId] = useState("");
     const [lastManualSelectTime, setLastManualSelectTime] = useState(0);
     const nameInputRef = useRef(null);
+    const latestQuery = useRef("");
+
 
 
 
@@ -42,21 +44,20 @@ const UserDashboard = forwardRef((props, ref) => {
     useEffect(() => {
         const now = Date.now();
         const elapsed = now - lastManualSelectTime;
-
         if (elapsed < 500) return;
 
         const delayDebounce = setTimeout(async () => {
             const currentName = nameInputRef.current?.value.trim() || "";
 
             if (currentName.length > 1) {
+                latestQuery.current = currentName; // salva l'ultima query che stai per inviare
+
                 try {
                     const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${currentName}`)}`);
                     const data = await res.json();
 
-                    if (!data.data || !Array.isArray(data.data)) {
-                        setSuggestions([]);
-                        return;
-                    }
+                    // ⚠️ se nel frattempo l'utente ha cambiato input, scarta la risposta
+                    if (latestQuery.current !== currentName) return;
 
                     const results = data.data.map(card => ({
                         name: card.name,
@@ -79,6 +80,7 @@ const UserDashboard = forwardRef((props, ref) => {
 
         return () => clearTimeout(delayDebounce);
     }, [name, lastManualSelectTime]);
+
 
 
 
