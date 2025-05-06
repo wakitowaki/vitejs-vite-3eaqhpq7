@@ -55,7 +55,7 @@ export default function BouncingPigs() {
                 left: 0,
                 width: "100vw",
                 height: "100vh",
-                zIndex: 0,
+                zIndex: -1, // 👈 forza di andare dietro a tutto
                 pointerEvents: "none",
                 overflow: "hidden"
             }}
