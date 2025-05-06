@@ -34,6 +34,34 @@ const UserDashboard = forwardRef((props, ref) => {
         fetchCards();
     }, []);
 
+    useEffect(() => {
+        const delayDebounce = setTimeout(async () => {
+            if (name.trim().length > 1) {
+                try {
+                    const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${name}`)}`);
+                    const data = await res.json();
+                    const results = data.data.map(card => ({
+                        name: card.name,
+                        image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
+                        priceEur: card.prices?.eur || null,
+                        priceEurFoil: card.prices?.eur_foil || null,
+                        prints_search_uri: card.prints_search_uri
+                    }));
+                    setSuggestions(results.slice(0, 10));
+                } catch (error) {
+                    console.error("Errore caricamento suggerimenti:", error);
+                    setSuggestions([]);
+                }
+            } else {
+                setSuggestions([]);
+                setPreviewImage(null);
+            }
+        }, 300); // debounce: aspetta 300ms
+
+        return () => clearTimeout(delayDebounce);
+    }, [name]);
+
+
     const fetchCards = async () => {
         const querySnapshot = await getDocs(collection(db, "cards"));
         const allCards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -240,30 +268,7 @@ const UserDashboard = forwardRef((props, ref) => {
                             <input
                                 type="text"
                                 value={name}
-                                onChange={async (e) => {
-                                    const val = e.target.value;
-                                    setName(val);
-                                    if (val.length > 1) {
-                                        try {
-                                            const res = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(`name:${val}`)}`);
-                                            const data = await res.json();
-                                            const results = data.data.map(card => ({
-                                                name: card.name,
-                                                image: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
-                                                priceEur: card.prices?.eur || null,
-                                                priceEurFoil: card.prices?.eur_foil || null,
-                                                prints_search_uri: card.prints_search_uri // 👈 NECESSARIO per le edizioni
-                                            }));
-                                            setSuggestions(results.slice(0, 10));
-                                        } catch (error) {
-                                            console.error("Errore caricamento suggerimenti:", error);
-                                            setSuggestions([]);
-                                        }
-                                    } else {
-                                        setSuggestions([]);
-                                        setPreviewImage(null);
-                                    }
-                                }}
+                                onChange={(e) => setName(e.target.value)}
                                 placeholder="Nome carta"
                                 className="w-full border p-2 rounded"
                             />
