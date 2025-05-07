@@ -236,7 +236,7 @@ export default function CardList() {
                                                 className="w-full border p-2 rounded"
                                             />
                                             <div className="flex gap-2">
-                                                {["Matteo", "Giacomo", "Marcello", "Umberto", "DanMarc"]
+                                                {["Matteo", "Giacomo", "Marcello","Daniele", "Umberto", "DanMarc"]
                                                     .map(user => (
                                                     <button
                                                         key={user}

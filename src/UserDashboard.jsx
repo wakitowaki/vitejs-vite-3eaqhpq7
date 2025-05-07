@@ -277,7 +277,7 @@ const UserDashboard = forwardRef((props, ref) => {
                     onChange={(e) => setSelectedOwner(e.target.value)}
                     className="border rounded px-3 py-2 w-full"
                 >
-                    {["Matteo", "Giacomo", "Marcello", "Umberto", "DanMarc"].map(user => (
+                    {["Matteo", "Giacomo", "Marcello","Daniele", "Umberto", "DanMarc"].map(user => (
                         <option key={user} value={user}>{user}</option>
                     ))}
                 </select>
