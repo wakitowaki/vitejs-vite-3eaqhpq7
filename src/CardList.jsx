@@ -142,7 +142,7 @@ export default function CardList() {
             </div>
 
             <div className="mb-6 flex flex-wrap gap-2">
-                {["Tutti", "Matteo", "Giacomo", "Marcello", "Umberto", "DanMarc"].map(owner => (
+                {["Tutti", "Matteo", "Giacomo", "Marcello","Daniele","Umberto", "DanMarc"].map(owner => (
                     <button
                         key={owner}
                         onClick={() => setFilter(owner)}
