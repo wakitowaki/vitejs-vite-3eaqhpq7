@@ -30,6 +30,7 @@ const UserDashboard = forwardRef((props, ref) => {
     const [lastManualSelectTime, setLastManualSelectTime] = useState(0);
     const nameInputRef = useRef(null);
     const latestQuery = useRef("");
+    const editPanelRef = useRef(null);
 
 
 
@@ -172,6 +173,9 @@ const UserDashboard = forwardRef((props, ref) => {
         const nonFoilCount = (card.copies || []).filter(c => !c.foil).length;
         setFoilCopies(foilCount);
         setNonFoilCopies(nonFoilCount);
+        if (editPanelRef.current) {
+            editPanelRef.current.scrollIntoView({ behavior: "smooth" });
+        }
     };
 
     const handleDeleteCard = async (cardId) => {
@@ -282,7 +286,7 @@ const UserDashboard = forwardRef((props, ref) => {
                     ))}
                 </select>
             </div>
-            <div className="mb-8">
+            <div className="mb-8" ref={editPanelRef}>
                 <h3 className="text-xl font-bold text-blue-800 mb-4">{editingCardId ? "💾 Modifica carta" : "➕ Aggiungi nuova carta"}</h3>
                 <div className="space-y-3 relative">
                     <div className="relative flex gap-4">
