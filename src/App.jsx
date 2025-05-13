@@ -1,6 +1,6 @@
 import './App.css';
 import CardList from './CardList';
-import PasswordGate from './PasswordGate';
+import AuthGate from './AuthGate';
 import { useState, useRef } from 'react';
 import UserDashboard from './UserDashboard';
 import BouncingPigs from './BouncingPigs';
@@ -106,7 +106,7 @@ function App() {
 
 
     return (
-        <PasswordGate>
+        <AuthGate>
             <div className="min-h-screen text-gray-800 font-sans px-4 py-8 relative z-10">
             <BouncingPigs />
                 <div className="max-w-3xl mx-auto">
@@ -211,7 +211,7 @@ function App() {
                 </div>
             )}
 
-        </PasswordGate>
+        </AuthGate>
     );
 }
 
