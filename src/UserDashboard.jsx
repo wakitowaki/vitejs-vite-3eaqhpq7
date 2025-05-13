@@ -576,22 +576,20 @@ const UserDashboard = forwardRef((props, ref) => {
                                                         {card.priceEurFoil ? ` / Foil €${parseFloat(card.priceEurFoil).toFixed(2)}` : ""}
                                                     </div>
                                                 )}
-                                                {viewMode === "list" && (
-                                                    <div className="flex gap-2 mt-3">
-                                                        <button
-                                                            onClick={() => handleEditCard(card)}
-                                                            className="text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                                                        >
-                                                            ✏️ Modifica
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteCard(card.id)}
-                                                            className="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                                                        >
-                                                            🗑️ Elimina
-                                                        </button>
-                                                    </div>
-                                                )}
+                                                <div className="flex gap-2 mt-3 justify-center">
+                                                    <button
+                                                        onClick={() => handleEditCard(card)}
+                                                        className="text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                                                    >
+                                                        ✏️ Modifica
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteCard(card.id)}
+                                                        className="text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                                    >
+                                                        🗑️ Elimina
+                                                    </button>
+                                                </div>
                                             </div>
                                             {card.imageUrl && (
                                                 <div
@@ -605,6 +603,7 @@ const UserDashboard = forwardRef((props, ref) => {
                                         </div>
                                     );
                                 })}
+
                         </div>
 
                     )}
